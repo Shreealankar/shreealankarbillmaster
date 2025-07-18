@@ -14,6 +14,192 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_items: {
+        Row: {
+          bill_id: string | null
+          created_at: string
+          id: string
+          item_name: string
+          making_charges: number | null
+          metal_type: string
+          other_charges: number | null
+          purity: string
+          rate_per_gram: number
+          stone_charges: number | null
+          total_amount: number
+          weight_grams: number
+        }
+        Insert: {
+          bill_id?: string | null
+          created_at?: string
+          id?: string
+          item_name: string
+          making_charges?: number | null
+          metal_type?: string
+          other_charges?: number | null
+          purity?: string
+          rate_per_gram: number
+          stone_charges?: number | null
+          total_amount: number
+          weight_grams: number
+        }
+        Update: {
+          bill_id?: string | null
+          created_at?: string
+          id?: string
+          item_name?: string
+          making_charges?: number | null
+          metal_type?: string
+          other_charges?: number | null
+          purity?: string
+          rate_per_gram?: number
+          stone_charges?: number | null
+          total_amount?: number
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_items_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bills: {
+        Row: {
+          balance_amount: number
+          bill_number: string
+          created_at: string
+          customer_address: string | null
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          final_amount: number
+          id: string
+          notes: string | null
+          paid_amount: number
+          payment_method: string | null
+          tax_amount: number | null
+          tax_percentage: number | null
+          total_amount: number
+          total_weight: number
+          updated_at: string
+        }
+        Insert: {
+          balance_amount?: number
+          bill_number: string
+          created_at?: string
+          customer_address?: string | null
+          customer_id?: string | null
+          customer_name: string
+          customer_phone: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          final_amount?: number
+          id?: string
+          notes?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          total_amount?: number
+          total_weight?: number
+          updated_at?: string
+        }
+        Update: {
+          balance_amount?: number
+          bill_number?: string
+          created_at?: string
+          customer_address?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          final_amount?: number
+          id?: string
+          notes?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          total_amount?: number
+          total_weight?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      borrowings: {
+        Row: {
+          balance_amount: number
+          borrowed_amount: number
+          borrowed_date: string
+          created_at: string
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string
+          due_date: string | null
+          id: string
+          interest_rate: number | null
+          notes: string | null
+          paid_amount: number | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          balance_amount: number
+          borrowed_amount: number
+          borrowed_date?: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name: string
+          customer_phone: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          notes?: string | null
+          paid_amount?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          balance_amount?: number
+          borrowed_amount?: number
+          borrowed_date?: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          notes?: string | null
+          paid_amount?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "borrowings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carousel_images: {
         Row: {
           created_at: string
@@ -43,6 +229,36 @@ export type Database = {
           image_url?: string
           is_active?: boolean
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string
           updated_at?: string
         }
         Relationships: []
@@ -79,6 +295,47 @@ export type Database = {
           weight_grams?: number
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          customer_phone: string
+          id: string
+          message_text: string
+          message_type: string | null
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          customer_phone: string
+          id?: string
+          message_text: string
+          message_type?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          customer_phone?: string
+          id?: string
+          message_text?: string
+          message_type?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -193,7 +450,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_bill_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       product_category:
