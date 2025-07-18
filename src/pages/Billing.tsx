@@ -14,14 +14,16 @@ import {
   Save, 
   Search,
   Calculator,
-  Receipt
+  Receipt,
+  Printer
 } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { BillPrint } from "@/components/BillPrint";
 
 interface BillItem {
-  id: string;
+  id: string; // Frontend temporary ID
   item_name: string;
   metal_type: string;
   purity: string;
@@ -126,7 +128,7 @@ export default function Billing() {
 
     const total_amount = calculateItemTotal(newItem);
     const item: BillItem = {
-      id: Date.now().toString(),
+      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Frontend temp ID
       ...newItem,
       total_amount
     };
@@ -216,11 +218,14 @@ export default function Billing() {
 
       if (billError) throw billError;
 
-      // Save bill items
-      const itemsData = billItems.map(item => ({
-        bill_id: savedBill.id,
-        ...item
-      }));
+      // Save bill items (exclude frontend temp ID)
+      const itemsData = billItems.map(item => {
+        const { id, ...itemWithoutId } = item; // Remove frontend temp ID
+        return {
+          bill_id: savedBill.id,
+          ...itemWithoutId
+        };
+      });
 
       const { error: itemsError } = await supabase
         .from('bill_items')

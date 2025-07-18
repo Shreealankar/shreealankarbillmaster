@@ -18,12 +18,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <SidebarTrigger className="ml-4" />
               <div className="flex-1 flex items-center justify-center">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-gold rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">SA</span>
+                  <img 
+                    src="/lovable-uploads/a353b3db-e82b-4bbf-9ce4-2324f1d83ca1.png" 
+                    alt="Shree Alankar Logo" 
+                    className="w-10 h-10 object-contain"
+                  />
+                  <div className="text-center">
+                    <h1 className="text-xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+                      Shree Alankar
+                    </h1>
+                    <p className="text-xs text-muted-foreground">Jewelry Billing System</p>
                   </div>
-                  <h1 className="text-xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-                    Shree Alankar
-                  </h1>
                 </div>
               </div>
             </header>
