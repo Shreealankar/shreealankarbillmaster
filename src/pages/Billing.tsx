@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   Plus, 
   Trash2, 
@@ -18,8 +20,11 @@ import {
   FileText,
   Eye,
   Trash,
-  AlertTriangle
+  AlertTriangle,
+  CalendarIcon
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -92,6 +97,7 @@ export default function Billing() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [billDate, setBillDate] = useState<Date>(new Date());
 
   useEffect(() => {
     fetchCustomers();
@@ -239,6 +245,7 @@ export default function Billing() {
         customer_phone: customer.phone,
         customer_address: customer.address,
         total_weight: billItems.reduce((sum, item) => sum + item.weight_grams, 0),
+        created_at: billDate.toISOString(),
         ...billing
       };
 
@@ -427,11 +434,11 @@ export default function Billing() {
           <div className="flex gap-2">
             <Button onClick={resetForm} variant="outline">
               <Plus className="h-4 w-4 mr-2" />
-              नवे बिल
+              New Bill
             </Button>
             <Button onClick={printBill} disabled={loading} className="bg-gradient-gold text-white">
               <Printer className="h-4 w-4 mr-2" />
-              बिल छापा
+              Print Bill
             </Button>
           </div>
         </div>
@@ -441,7 +448,7 @@ export default function Billing() {
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <div className="flex-1">
-                <Label className="text-sm font-medium">जुने बिल शोधा (SA नंबर)</Label>
+                <Label className="text-sm font-medium">Previous Bills (SA Number)</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="SA-2024-0001"
@@ -451,7 +458,7 @@ export default function Billing() {
                   />
                   <Button onClick={searchBill} size="sm">
                     <Search className="h-4 w-4 mr-2" />
-                    शोधा
+                    Search
                   </Button>
                 </div>
               </div>
@@ -463,7 +470,7 @@ export default function Billing() {
                     variant="outline"
                   >
                     <Eye className="h-4 w-4 mr-2" />
-                    पाहा
+                    View
                   </Button>
                   <Button 
                     onClick={() => setShowDeleteDialog(true)} 
@@ -471,7 +478,7 @@ export default function Billing() {
                     variant="destructive"
                   >
                     <Trash className="h-4 w-4 mr-2" />
-                    हटवा
+                    Delete
                   </Button>
                 </div>
               )}
@@ -532,6 +539,33 @@ export default function Billing() {
             </div>
 
             <Separator />
+
+            <div className="space-y-2">
+              <Label>Bill Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !billDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {billDate ? format(billDate, "dd/MM/yyyy") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={billDate}
+                    onSelect={(date) => date && setBillDate(date)}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
             <div className="space-y-2">
               <Label>{t('customer.name')} *</Label>

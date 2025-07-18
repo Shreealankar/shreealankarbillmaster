@@ -43,9 +43,23 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
     window.print();
   };
 
-  const handleWhatsAppShare = () => {
-    const message = `${t('shop.name')} - ${t('bill.number')}: ${billData.bill_number}\n${t('total')}: ₹${billData.final_amount.toLocaleString('en-IN')}\n${t('thanks.visit')}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  const handleWhatsAppShare = async () => {
+    // Create a better formatted message for WhatsApp
+    const billContent = `
+🏪 ${t('shop.name')}
+📄 ${t('bill.number')}: ${billData.bill_number}
+👤 ${t('customer.name')}: ${billData.customer_name}
+📞 ${t('phone')}: ${billData.customer_phone}
+📅 ${t('date')}: ${format(new Date(billData.created_at), 'dd/MM/yyyy')}
+
+💰 ${t('total')}: ₹${billData.final_amount.toLocaleString('en-IN')}
+💵 ${t('paid')}: ₹${billData.paid_amount.toLocaleString('en-IN')}
+⚖️ ${t('balance')}: ₹${billData.balance_amount.toLocaleString('en-IN')}
+
+🙏 ${t('thanks.visit')}
+    `.trim();
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(billContent)}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -58,22 +72,23 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
       {/* Print Controls - Hidden in print */}
       <div className="max-w-4xl mx-auto mb-4 print:hidden">
         <div className="flex gap-2 justify-center">
-          <Button onClick={handlePrint} className="flex items-center gap-2">
+          <Button onClick={handlePrint} className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
             <Printer className="h-4 w-4" />
-            {t('print.bill')}
+            Print Bill
           </Button>
-          <Button onClick={handleWhatsAppShare} variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleWhatsAppShare} variant="outline" className="flex items-center gap-2 border-green-500 text-green-600 hover:bg-green-50">
             <Share className="h-4 w-4" />
-            {t('share.whatsapp')}
+            Share WhatsApp
           </Button>
-          <Button onClick={handleSavePDF} variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleSavePDF} variant="outline" className="flex items-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-50">
             <Download className="h-4 w-4" />
-            {t('save.pdf')}
+            Save PDF
           </Button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6 bg-white text-black print:p-4 print:max-w-none print:mx-0 print:text-sm">
+      <div className="max-w-4xl mx-auto p-6 bg-white text-black print:p-4 print:max-w-none print:mx-0 print:text-sm" 
+           style={{ fontFamily: "'Marathi Font', 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
         {/* Header */}
         <div className="text-center border-b-2 border-gray-300 pb-4 mb-6 print:pb-2 print:mb-4">
           <div className="flex items-center justify-center gap-4 mb-2 print:gap-2 print:mb-1">
@@ -83,12 +98,15 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
               className="h-16 w-16 print:h-12 print:w-12"
             />
             <div>
-              <h1 className="text-3xl font-bold text-orange-600 print:text-xl">{t('shop.name').toUpperCase()}</h1>
-              <p className="text-sm text-gray-600 print:text-xs">{t('gold')} & {t('silver')} Ornaments</p>
+              <h1 className="text-3xl font-black text-orange-600 print:text-xl" 
+                  style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
+                {t('shop.name').toUpperCase()}
+              </h1>
+              <p className="text-sm text-gray-600 print:text-xs font-semibold">{t('gold')} & {t('silver')} Ornaments</p>
             </div>
           </div>
-          <div className="text-sm text-gray-600 print:text-xs">
-            <p>{t('shop.address')}</p>
+          <div className="text-sm text-gray-600 print:text-xs font-medium">
+            <p className="font-semibold">{t('shop.address')}</p>
             <p>{t('phone')}: {t('shop.phone')} | {t('email')}: {t('shop.email')}</p>
           </div>
         </div>
