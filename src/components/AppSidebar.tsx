@@ -29,7 +29,6 @@ const menuItems = [
   { title: 'customers', url: '/customers', icon: Users },
   { title: 'borrowings', url: '/borrowings', icon: CreditCard },
   { title: 'messages', url: '/messages', icon: MessageSquare },
-  { title: 'rates', url: '/rates', icon: TrendingUp },
 ];
 
 export function AppSidebar() {
