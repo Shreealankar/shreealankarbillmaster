@@ -111,163 +111,213 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
 
       <div className="print-container max-w-4xl mx-auto p-6 bg-white text-black print:p-0 print:m-0 print:max-w-none print:mx-0 print:text-sm" 
            style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
-        {/* Header with Logo */}
-        <div className="text-center pb-4 mb-4 print:pb-2 print:mb-2">
-          <div className="flex justify-center mb-3 print:mb-2">
-            <div className="w-20 h-20 print:w-16 print:h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-4 border-yellow-300">
-              <div className="text-center">
-                <div className="text-yellow-900 font-bold text-xs print:text-xs leading-tight">
-                  SHREE<br/>ALANKAR
+        {/* Modern Header */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6 mb-6 print:p-4 print:mb-4 print:bg-white print:border-gray-300">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/lovable-uploads/a353b3db-e82b-4bbf-9ce4-2324f1d83ca1.png" 
+                alt="Shree Alankar Logo" 
+                className="w-16 h-16 print:w-12 print:h-12 object-contain"
+              />
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent print:text-black print:text-xl" 
+                    style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
+                  {t('shop.name')}
+                </h1>
+                <p className="text-sm text-gray-600 print:text-xs font-medium">Gold & Silver Ornaments</p>
+                <p className="text-xs text-gray-500 print:text-xs">{t('shop.address')}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-gray-700 print:text-xs">Contact: {t('shop.phone')}</p>
+              <p className="text-xs text-gray-600">Owner: Kiran Raghunath Jadhav</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bill Header */}
+        <div className="bg-gray-50 border-l-4 border-yellow-500 p-4 mb-6 print:bg-white print:border-gray-400 print:p-2 print:mb-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-bold text-gray-800 print:text-base">INVOICE</h2>
+              <p className="text-sm text-gray-600 print:text-xs">{t('bill.number')}: <span className="font-mono font-semibold">{billData.bill_number}</span></p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600 print:text-xs">{t('date')}: {format(new Date(billData.created_at), 'dd/MM/yyyy')}</p>
+              <p className="text-xs text-gray-500">Time: {format(new Date(billData.created_at), 'hh:mm a')}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Details Card */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-6 print:shadow-none print:p-2 print:mb-4">
+          <h3 className="text-lg font-semibold text-yellow-600 mb-3 print:text-base print:mb-2">Customer Details</h3>
+          <div className="grid grid-cols-2 gap-4 print:gap-2">
+            <div className="space-y-2 print:space-y-1">
+              <div className="flex">
+                <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Name:</span>
+                <span className="text-sm text-gray-900 print:text-xs">{billData.customer_name}</span>
+              </div>
+              <div className="flex">
+                <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Address:</span>
+                <span className="text-sm text-gray-900 print:text-xs">{billData.customer_address || 'N/A'}</span>
+              </div>
+            </div>
+            <div className="space-y-2 print:space-y-1">
+              <div className="flex">
+                <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Mobile:</span>
+                <span className="text-sm text-gray-900 print:text-xs">{billData.customer_phone}</span>
+              </div>
+              <div className="flex">
+                <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Email:</span>
+                <span className="text-sm text-gray-900 print:text-xs">N/A</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modern Items Table */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6 print:shadow-none print:mb-4">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white print:bg-gray-100 print:text-black">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">#</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Item Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Type/Purity</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Weight (g)</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Rate/g</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Making</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Other</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold print:px-2 print:py-1 print:text-xs">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {billItems.map((item, index) => (
+                  <tr key={index} className="hover:bg-gray-50 print:hover:bg-white">
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{index + 1}</td>
+                    <td className="px-4 py-3 text-sm font-medium print:px-2 print:py-1 print:text-xs">{item.item_name}</td>
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{item.weight_grams}g</td>
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">₹{(item.making_charges || 0).toLocaleString('en-IN')}</td>
+                    <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">₹{(item.other_charges || 0).toLocaleString('en-IN')}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-right print:px-2 print:py-1 print:text-xs">₹{item.total_amount.toLocaleString('en-IN')}</td>
+                  </tr>
+                ))}
+                {billItems.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 print:py-4">No items added</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Modern Totals Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 print:gap-4 print:mb-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 print:p-2">
+            <h4 className="font-semibold text-gray-800 mb-3 print:text-sm print:mb-2">Payment Details</h4>
+            <div className="space-y-2 print:space-y-1">
+              <div className="flex justify-between text-sm print:text-xs">
+                <span className="text-gray-600">Payment Method:</span>
+                <span className="font-medium">{billData.payment_method || 'Cash'}</span>
+              </div>
+              <div className="flex justify-between text-sm print:text-xs">
+                <span className="text-gray-600">Total Weight:</span>
+                <span className="font-medium">{billData.total_weight}g</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4 print:bg-white print:border-gray-300 print:p-2">
+            <div className="space-y-3 print:space-y-1">
+              <div className="flex justify-between text-sm print:text-xs">
+                <span className="text-gray-700">Subtotal:</span>
+                <span className="font-medium">₹{billData.total_amount.toLocaleString('en-IN')}</span>
+              </div>
+              
+              {billData.discount_amount > 0 && (
+                <div className="flex justify-between text-sm text-green-600 print:text-xs">
+                  <span>Discount ({billData.discount_percentage}%):</span>
+                  <span className="font-medium">-₹{billData.discount_amount.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              
+              {billData.tax_amount > 0 && (
+                <div className="flex justify-between text-sm print:text-xs">
+                  <span className="text-gray-700">Tax ({billData.tax_percentage}%):</span>
+                  <span className="font-medium">₹{billData.tax_amount.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              
+              <div className="border-t border-yellow-300 pt-2 print:border-gray-300 print:pt-1">
+                <div className="flex justify-between text-lg font-bold text-gray-900 print:text-sm">
+                  <span>Total Amount:</span>
+                  <span>₹{billData.final_amount.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <h1 className="text-2xl font-bold text-yellow-600 mb-1 print:text-lg print:mb-0.5" 
-              style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
-            {t('shop.name')}
-          </h1>
-          
-          <div className="text-sm text-gray-700 print:text-xs space-y-1 print:space-y-0.5">
-            <p className="font-medium">{t('shop.address')}</p>
-            <p>Contact: {t('shop.phone')}</p>
-            <p>Owner: Kiran Raghunath Jadhav</p>
-          </div>
-        </div>
-
-        {/* Bill Number and Date */}
-        <div className="flex justify-between items-center mb-4 print:mb-2 border-b border-gray-300 pb-2 print:pb-1">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm print:text-xs">{t('bill.number')}:</span>
-            <span className="text-sm print:text-xs">{billData.bill_number}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm print:text-xs">{t('date')}:</span>
-            <span className="text-sm print:text-xs">{format(new Date(billData.created_at), 'yyyy-MM-dd')}</span>
-          </div>
-        </div>
-
-        {/* Customer Details */}
-        <div className="mb-4 print:mb-2">
-          <h3 className="text-yellow-600 font-semibold mb-2 print:text-sm print:mb-1">Customer Details</h3>
-          <div className="grid grid-cols-2 gap-4 print:gap-2 text-sm print:text-xs">
-            <div>
-              <span className="font-medium">Name:</span> {billData.customer_name}
-            </div>
-            <div>
-              <span className="font-medium">Mobile:</span> {billData.customer_phone}
-            </div>
-            <div>
-              <span className="font-medium">Address:</span> {billData.customer_address || 'N/A'}
-            </div>
-            <div>
-              <span className="font-medium">Email:</span> N/A
-            </div>
-          </div>
-        </div>
-
-        {/* Items Table */}
-        <div className="mb-4 print:mb-2">
-          <table className="w-full border-collapse border border-gray-400 text-sm print:text-xs">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">#</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Item Name</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Type</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Weight (gm)</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Rate</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Making Charges</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Other Charges</th>
-                <th className="border border-gray-400 p-2 print:p-1 text-right font-medium">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billItems.map((item, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-400 p-2 print:p-1">{index + 1}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">{item.item_name}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">{item.weight_grams}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">₹{(item.making_charges || 0).toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-400 p-2 print:p-1">₹{(item.other_charges || 0).toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-400 p-2 print:p-1 text-right">₹{item.total_amount.toLocaleString('en-IN')}</td>
-                </tr>
-              ))}
-              {/* Empty rows to maintain table structure */}
-              {billItems.length === 0 && (
-                <tr>
-                  <td className="border border-gray-400 p-2 print:p-1" colSpan={8}>&nbsp;</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Totals Section */}
-        <div className="text-right mb-4 print:mb-2">
-          <div className="inline-block text-sm print:text-xs space-y-1 print:space-y-0.5">
-            <div className="flex justify-between w-64 print:w-48">
-              <span className="font-medium">Total Amount:</span>
-              <span>₹{billData.total_amount.toLocaleString('en-IN')}</span>
-            </div>
-            {billData.discount_amount > 0 && (
-              <div className="flex justify-between w-64 print:w-48 text-green-600">
-                <span className="font-medium">Discount ({billData.discount_percentage}%):</span>
-                <span>-₹{billData.discount_amount.toLocaleString('en-IN')}</span>
+              
+              <div className="flex justify-between text-sm print:text-xs">
+                <span className="text-gray-700">Paid Amount:</span>
+                <span className="font-medium text-green-600">₹{billData.paid_amount.toLocaleString('en-IN')}</span>
               </div>
-            )}
-            {billData.tax_amount > 0 && (
-              <div className="flex justify-between w-64 print:w-48">
-                <span className="font-medium">Tax ({billData.tax_percentage}%):</span>
-                <span>₹{billData.tax_amount.toLocaleString('en-IN')}</span>
+              
+              <div className="flex justify-between text-sm print:text-xs">
+                <span className="text-gray-700">Balance:</span>
+                <span className={`font-medium ${billData.balance_amount > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {billData.balance_amount > 0 
+                    ? `₹${billData.balance_amount.toLocaleString('en-IN')}` 
+                    : `-₹${Math.abs(billData.balance_amount).toLocaleString('en-IN')}`
+                  }
+                </span>
               </div>
-            )}
-            <div className="flex justify-between w-64 print:w-48 font-bold text-base print:text-sm border-t border-gray-400 pt-1">
-              <span>Final Amount:</span>
-              <span>₹{billData.final_amount.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between w-64 print:w-48">
-              <span className="font-medium">Paid Amount:</span>
-              <span>₹{billData.paid_amount.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between w-64 print:w-48">
-              <span className="font-medium">Remaining Amount:</span>
-              <span className={billData.balance_amount > 0 ? 'text-red-600' : 'text-green-600'}>
-                {billData.balance_amount > 0 ? '₹' + billData.balance_amount.toLocaleString('en-IN') : '-₹' + Math.abs(billData.balance_amount).toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="flex justify-between w-64 print:w-48">
-              <span className="font-medium">Payment Method:</span>
-              <span>{billData.payment_method || 'cash'}</span>
             </div>
           </div>
         </div>
 
-        {/* Terms and Conditions with QR Code */}
-        <div className="border-t border-gray-400 pt-4 print:pt-2">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:gap-2">
-            <div className="md:col-span-2">
-              <h4 className="text-yellow-600 font-semibold mb-2 print:text-sm print:mb-1">Terms and Conditions</h4>
-              <ol className="text-xs space-y-1 print:space-y-0.5 text-gray-700">
-                <li>1. Gold Purity is 97.5% or 99.5%</li>
-                <li>2. 99.5% gold price per gram will be Rs.100 higher</li>
-                <li>3. For more terms and conditions, scan QR</li>
-              </ol>
+        {/* Footer with QR and Terms */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 print:bg-white print:border-gray-300 print:p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:gap-4">
+            {/* Terms */}
+            <div className="lg:col-span-2">
+              <h4 className="text-lg font-semibold text-yellow-600 mb-3 print:text-base print:mb-2">Terms & Conditions</h4>
+              <ul className="space-y-1 text-sm text-gray-700 print:text-xs print:space-y-0.5">
+                <li className="flex items-start">
+                  <span className="text-yellow-500 mr-2">•</span>
+                  <span>Gold Purity is 97.5% or 99.5%</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-500 mr-2">•</span>
+                  <span>99.5% gold price per gram will be Rs.100 higher</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-500 mr-2">•</span>
+                  <span>For more terms and conditions, scan QR code</span>
+                </li>
+              </ul>
             </div>
             
-            <div className="flex justify-center md:justify-end">
-              <div className="w-20 h-20 print:w-16 print:h-16 border border-gray-400 bg-white flex items-center justify-center">
-                <div className="text-xs text-gray-500 text-center">QR<br/>Code</div>
-              </div>
+            {/* QR Code */}
+            <div className="flex flex-col items-center justify-center">
+              <img 
+                src="/lovable-uploads/ba105f2d-1670-4942-9701-23ded4e80a28.png" 
+                alt="QR Code for Shree Alankar" 
+                className="w-24 h-24 print:w-20 print:h-20 border border-gray-300 rounded-lg shadow-sm"
+              />
+              <p className="text-xs text-gray-600 mt-2 text-center print:mt-1">Scan for more info</p>
             </div>
           </div>
         </div>
 
         {/* Thank You Message */}
-        <div className="text-center mt-6 print:mt-4">
-          <p className="text-lg font-medium text-yellow-600 print:text-sm">{t('thanks.visit')}</p>
-          <p className="text-xs text-gray-600 mt-1 print:mt-0.5">Visit Again</p>
+        <div className="text-center mt-8 print:mt-4">
+          <div className="inline-block bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-3 rounded-full print:bg-gray-800 print:px-4 print:py-2">
+            <p className="text-lg font-semibold print:text-sm">{t('thanks.visit')}</p>
+          </div>
+          <p className="text-sm text-gray-600 mt-2 print:text-xs print:mt-1">Visit Again for Premium Jewelry Experience</p>
         </div>
       </div>
     </>
