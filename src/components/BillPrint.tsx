@@ -87,8 +87,30 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6 bg-white text-black print:p-4 print:max-w-none print:mx-0 print:text-sm" 
-           style={{ fontFamily: "'Marathi Font', 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
+      {/* Print styles to ensure bill starts from top */}
+      <style>{`
+        @media print {
+          * {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+          }
+          .print-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            page-break-inside: avoid;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+      `}</style>
+
+      <div className="print-container max-w-4xl mx-auto p-6 bg-white text-black print:p-0 print:m-0 print:max-w-none print:mx-0 print:text-sm" 
+           style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
         {/* Header */}
         <div className="text-center border-b-2 border-gray-300 pb-4 mb-6 print:pb-2 print:mb-4">
           <div className="flex items-center justify-center gap-4 mb-2 print:gap-2 print:mb-1">
