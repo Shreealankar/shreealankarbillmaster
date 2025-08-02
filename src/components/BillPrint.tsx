@@ -111,159 +111,163 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
 
       <div className="print-container max-w-4xl mx-auto p-6 bg-white text-black print:p-0 print:m-0 print:max-w-none print:mx-0 print:text-sm" 
            style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
-        {/* Header */}
-        <div className="text-center border-b-2 border-gray-300 pb-4 mb-6 print:pb-2 print:mb-4">
-          <div className="flex items-center justify-center gap-4 mb-2 print:gap-2 print:mb-1">
-            <img 
-              src="/lovable-uploads/a353b3db-e82b-4bbf-9ce4-2324f1d83ca1.png" 
-              alt="Shree Alankar Logo" 
-              className="h-16 w-16 print:h-12 print:w-12"
-            />
-            <div>
-              <h1 className="text-3xl font-black text-orange-600 print:text-xl" 
-                  style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
-                {t('shop.name').toUpperCase()}
-              </h1>
-              <p className="text-sm text-gray-600 print:text-xs font-semibold">{t('gold')} & {t('silver')} Ornaments</p>
+        {/* Header with Logo */}
+        <div className="text-center pb-4 mb-4 print:pb-2 print:mb-2">
+          <div className="flex justify-center mb-3 print:mb-2">
+            <div className="w-20 h-20 print:w-16 print:h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-4 border-yellow-300">
+              <div className="text-center">
+                <div className="text-yellow-900 font-bold text-xs print:text-xs leading-tight">
+                  SHREE<br/>ALANKAR
+                </div>
+              </div>
             </div>
           </div>
-          <div className="text-sm text-gray-600 print:text-xs font-medium">
-            <p className="font-semibold">{t('shop.address')}</p>
-            <p>{t('phone')}: {t('shop.phone')} | {t('email')}: {t('shop.email')}</p>
+          
+          <h1 className="text-2xl font-bold text-yellow-600 mb-1 print:text-lg print:mb-0.5" 
+              style={{ fontFamily: "'Shree Devanagari 714', 'Kruti Dev 040', 'Mangal', 'Arial Unicode MS', sans-serif" }}>
+            {t('shop.name')}
+          </h1>
+          
+          <div className="text-sm text-gray-700 print:text-xs space-y-1 print:space-y-0.5">
+            <p className="font-medium">{t('shop.address')}</p>
+            <p>Contact: {t('shop.phone')}</p>
+            <p>Owner: Kiran Raghunath Jadhav</p>
           </div>
         </div>
 
-        {/* Bill Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 print:gap-4 print:mb-4">
-          <div>
-            <h2 className="text-lg font-semibold mb-2 print:text-base print:mb-1">{t('bill.to')}:</h2>
-            <div className="text-sm print:text-xs">
-              <p className="font-medium">{billData.customer_name}</p>
-              <p>{billData.customer_phone}</p>
-              {billData.customer_address && <p>{billData.customer_address}</p>}
-            </div>
+        {/* Bill Number and Date */}
+        <div className="flex justify-between items-center mb-4 print:mb-2 border-b border-gray-300 pb-2 print:pb-1">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm print:text-xs">{t('bill.number')}:</span>
+            <span className="text-sm print:text-xs">{billData.bill_number}</span>
           </div>
-          <div className="text-right print:text-left">
-            <div className="text-sm print:text-xs">
-              <p><span className="font-medium">{t('bill.number')}:</span> {billData.bill_number}</p>
-              <p><span className="font-medium">{t('date')}:</span> {format(new Date(billData.created_at), 'dd/MM/yyyy')}</p>
-              <p><span className="font-medium">Time:</span> {format(new Date(billData.created_at), 'hh:mm a')}</p>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm print:text-xs">{t('date')}:</span>
+            <span className="text-sm print:text-xs">{format(new Date(billData.created_at), 'yyyy-MM-dd')}</span>
+          </div>
+        </div>
+
+        {/* Customer Details */}
+        <div className="mb-4 print:mb-2">
+          <h3 className="text-yellow-600 font-semibold mb-2 print:text-sm print:mb-1">Customer Details</h3>
+          <div className="grid grid-cols-2 gap-4 print:gap-2 text-sm print:text-xs">
+            <div>
+              <span className="font-medium">Name:</span> {billData.customer_name}
+            </div>
+            <div>
+              <span className="font-medium">Mobile:</span> {billData.customer_phone}
+            </div>
+            <div>
+              <span className="font-medium">Address:</span> {billData.customer_address || 'N/A'}
+            </div>
+            <div>
+              <span className="font-medium">Email:</span> N/A
             </div>
           </div>
         </div>
 
         {/* Items Table */}
-        <div className="mb-6 print:mb-4 overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 print:text-xs">
+        <div className="mb-4 print:mb-2">
+          <table className="w-full border-collapse border border-gray-400 text-sm print:text-xs">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('sr.no')}</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('description')}</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('metal.type')}/{t('purity')}</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('weight')} (g)</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('rate')}/g</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('making.charges')}</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('stone.charges')}</th>
-                <th className="border border-gray-300 p-2 text-left text-sm font-medium print:p-1 print:text-xs">{t('other.charges')}</th>
-                <th className="border border-gray-300 p-2 text-right text-sm font-medium print:p-1 print:text-xs">{t('amount')}</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">#</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Item Name</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Type</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Weight (gm)</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Rate</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Making Charges</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-left font-medium">Other Charges</th>
+                <th className="border border-gray-400 p-2 print:p-1 text-right font-medium">Amount</th>
               </tr>
             </thead>
             <tbody>
               {billItems.map((item, index) => (
                 <tr key={index}>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">{index + 1}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">{item.item_name}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">{item.weight_grams}g</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">₹{(item.making_charges || 0).toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">₹{(item.stone_charges || 0).toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-300 p-2 text-sm print:p-1 print:text-xs">₹{(item.other_charges || 0).toLocaleString('en-IN')}</td>
-                  <td className="border border-gray-300 p-2 text-sm text-right print:p-1 print:text-xs">₹{item.total_amount.toLocaleString('en-IN')}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">{index + 1}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">{item.item_name}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">{item.weight_grams}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">₹{(item.making_charges || 0).toLocaleString('en-IN')}</td>
+                  <td className="border border-gray-400 p-2 print:p-1">₹{(item.other_charges || 0).toLocaleString('en-IN')}</td>
+                  <td className="border border-gray-400 p-2 print:p-1 text-right">₹{item.total_amount.toLocaleString('en-IN')}</td>
                 </tr>
               ))}
+              {/* Empty rows to maintain table structure */}
+              {billItems.length === 0 && (
+                <tr>
+                  <td className="border border-gray-400 p-2 print:p-1" colSpan={8}>&nbsp;</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Totals */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 print:gap-4 print:mb-4">
-          <div>
-            <h3 className="font-semibold mb-2 print:text-sm print:mb-1">Payment Details:</h3>
-            <div className="text-sm space-y-1 print:text-xs print:space-y-0.5">
-              <p><span className="font-medium">{t('payment.method')}:</span> {billData.payment_method ? t(billData.payment_method.toLowerCase()) : t('cash')}</p>
-              <p><span className="font-medium">{t('total')} {t('weight')}:</span> {billData.total_weight}g</p>
+        {/* Totals Section */}
+        <div className="text-right mb-4 print:mb-2">
+          <div className="inline-block text-sm print:text-xs space-y-1 print:space-y-0.5">
+            <div className="flex justify-between w-64 print:w-48">
+              <span className="font-medium">Total Amount:</span>
+              <span>₹{billData.total_amount.toLocaleString('en-IN')}</span>
+            </div>
+            {billData.discount_amount > 0 && (
+              <div className="flex justify-between w-64 print:w-48 text-green-600">
+                <span className="font-medium">Discount ({billData.discount_percentage}%):</span>
+                <span>-₹{billData.discount_amount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            {billData.tax_amount > 0 && (
+              <div className="flex justify-between w-64 print:w-48">
+                <span className="font-medium">Tax ({billData.tax_percentage}%):</span>
+                <span>₹{billData.tax_amount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            <div className="flex justify-between w-64 print:w-48 font-bold text-base print:text-sm border-t border-gray-400 pt-1">
+              <span>Final Amount:</span>
+              <span>₹{billData.final_amount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between w-64 print:w-48">
+              <span className="font-medium">Paid Amount:</span>
+              <span>₹{billData.paid_amount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between w-64 print:w-48">
+              <span className="font-medium">Remaining Amount:</span>
+              <span className={billData.balance_amount > 0 ? 'text-red-600' : 'text-green-600'}>
+                {billData.balance_amount > 0 ? '₹' + billData.balance_amount.toLocaleString('en-IN') : '-₹' + Math.abs(billData.balance_amount).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="flex justify-between w-64 print:w-48">
+              <span className="font-medium">Payment Method:</span>
+              <span>{billData.payment_method || 'cash'}</span>
             </div>
           </div>
-          <div>
-            <div className="bg-gray-50 p-4 rounded print:p-2 print:bg-gray-100">
-              <div className="space-y-2 text-sm print:text-xs print:space-y-1">
-                <div className="flex justify-between">
-                  <span>{t('subtotal')}:</span>
-                  <span>₹{billData.total_amount.toLocaleString('en-IN')}</span>
-                </div>
-                {billData.discount_amount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>{t('discount')} ({billData.discount_percentage}%):</span>
-                    <span>-₹{billData.discount_amount.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
-                {billData.tax_amount > 0 && (
-                  <div className="flex justify-between">
-                    <span>{t('tax')} ({billData.tax_percentage}%):</span>
-                    <span>₹{billData.tax_amount.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
-                <hr className="border-gray-300" />
-                <div className="flex justify-between font-bold text-lg print:text-sm">
-                  <span>{t('total')}:</span>
-                  <span>₹{billData.final_amount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('received')}:</span>
-                  <span>₹{billData.paid_amount.toLocaleString('en-IN')}</span>
-                </div>
-                {billData.balance_amount > 0 && (
-                  <div className="flex justify-between font-medium text-red-600">
-                    <span>{t('balance')}:</span>
-                    <span>₹{billData.balance_amount.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
+        </div>
+
+        {/* Terms and Conditions with QR Code */}
+        <div className="border-t border-gray-400 pt-4 print:pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:gap-2">
+            <div className="md:col-span-2">
+              <h4 className="text-yellow-600 font-semibold mb-2 print:text-sm print:mb-1">Terms and Conditions</h4>
+              <ol className="text-xs space-y-1 print:space-y-0.5 text-gray-700">
+                <li>1. Gold Purity is 97.5% or 99.5%</li>
+                <li>2. 99.5% gold price per gram will be Rs.100 higher</li>
+                <li>3. For more terms and conditions, scan QR</li>
+              </ol>
+            </div>
+            
+            <div className="flex justify-center md:justify-end">
+              <div className="w-20 h-20 print:w-16 print:h-16 border border-gray-400 bg-white flex items-center justify-center">
+                <div className="text-xs text-gray-500 text-center">QR<br/>Code</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="border-t-2 border-gray-300 pt-4 print:pt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:gap-4">
-            <div>
-              <h4 className="font-semibold mb-2 print:text-sm print:mb-1">{t('terms.conditions')}:</h4>
-              <ul className="text-xs space-y-1 text-gray-600 print:space-y-0.5">
-                <li>• Goods once sold will not be taken back</li>
-                <li>• All disputes subject to local jurisdiction</li>
-                <li>• Payment to be made at the time of delivery</li>
-              </ul>
-            </div>
-            
-            <div className="text-right print:text-left">
-              <div className="mb-6 print:mb-3">
-                <p className="text-sm font-medium print:text-xs">Customer {t('signature')}</p>
-                <div className="border-b border-gray-300 w-32 ml-auto mt-2 print:ml-0 print:w-24 print:mt-1"></div>
-              </div>
-              
-              <div>
-                <p className="text-sm font-medium print:text-xs">Authorized {t('signature')}</p>
-                <div className="border-b border-gray-300 w-32 ml-auto mt-2 print:ml-0 print:w-24 print:mt-1"></div>
-                <p className="text-xs text-gray-600 mt-1 print:text-xs">For {t('shop.name')}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="text-center mt-6 pt-4 border-t border-gray-200 print:mt-4 print:pt-2">
-            <p className="text-lg font-medium text-orange-600 print:text-sm">{t('thanks.visit')}</p>
-            <p className="text-xs text-gray-600 mt-1">Visit us again for all your jewelry needs</p>
-          </div>
+        {/* Thank You Message */}
+        <div className="text-center mt-6 print:mt-4">
+          <p className="text-lg font-medium text-yellow-600 print:text-sm">{t('thanks.visit')}</p>
+          <p className="text-xs text-gray-600 mt-1 print:mt-0.5">Visit Again</p>
         </div>
       </div>
     </>
