@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { CreditCard, Phone, Calendar, AlertCircle, IndianRupee, Clock } from 'lucide-react';
+import { CreditCard, Phone, Calendar, AlertCircle, IndianRupee, Clock, Receipt } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,15 +23,28 @@ interface Borrowing {
   notes: string;
 }
 
+interface CustomerBill {
+  id: string;
+  bill_number: string;
+  customer_phone: string;
+  balance_amount: number;
+  created_at: string;
+}
+
 const Borrowings = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [borrowings, setBorrowings] = useState<Borrowing[]>([]);
+  const [customerBills, setCustomerBills] = useState<CustomerBill[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBorrowings();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    await Promise.all([fetchBorrowings(), fetchCustomerBills()]);
+  };
 
   const fetchBorrowings = async () => {
     try {
@@ -56,6 +69,21 @@ const Borrowings = () => {
     }
   };
 
+  const fetchCustomerBills = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bills')
+        .select('id, bill_number, customer_phone, balance_amount, created_at')
+        .gt('balance_amount', 0) // Only bills with pending amounts
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCustomerBills(data || []);
+    } catch (error) {
+      console.error('Error fetching customer bills:', error);
+    }
+  };
+
   const getStatusBadge = (status: string, dueDate: string) => {
     const isOverdue = new Date(dueDate) < new Date();
     
@@ -74,6 +102,8 @@ const Borrowings = () => {
   };
 
   const totalPending = borrowings.reduce((sum, b) => sum + b.balance_amount, 0);
+  const totalBillsPending = customerBills.reduce((sum, b) => sum + b.balance_amount, 0);
+  const grandTotalPending = totalPending + totalBillsPending;
 
   if (loading) {
     return (
@@ -93,9 +123,12 @@ const Borrowings = () => {
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-red-600">
-            ₹{totalPending.toLocaleString('en-IN')}
+            ₹{grandTotalPending.toLocaleString('en-IN')}
           </div>
-          <p className="text-sm text-muted-foreground">Total Pending</p>
+          <p className="text-sm text-muted-foreground">Total Pending (Bills + Borrowings)</p>
+          <div className="text-sm text-muted-foreground mt-1">
+            Bills: ₹{totalBillsPending.toLocaleString('en-IN')} | Borrowings: ₹{totalPending.toLocaleString('en-IN')}
+          </div>
         </div>
       </div>
 
@@ -200,6 +233,59 @@ const Borrowings = () => {
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(borrowing.status, borrowing.due_date)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Customer Bills with Pending Amounts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5" />
+            Pending Bills ({customerBills.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {customerBills.length === 0 ? (
+            <div className="text-center py-8">
+              <Receipt className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No pending bills found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Bill Number</TableHead>
+                    <TableHead>Customer Phone</TableHead>
+                    <TableHead>Pending Amount</TableHead>
+                    <TableHead>Bill Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {customerBills.map((bill) => (
+                    <TableRow key={bill.id}>
+                      <TableCell className="font-medium">{bill.bill_number}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          {bill.customer_phone}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold text-red-600">
+                        ₹{bill.balance_amount.toLocaleString('en-IN')}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {new Date(bill.created_at).toLocaleDateString('en-IN')}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

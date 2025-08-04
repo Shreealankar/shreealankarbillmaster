@@ -404,13 +404,15 @@ export default function Billing() {
   const autoFillRate = () => {
     const currentRate = getCurrentRate(newItem.metal_type);
     if (currentRate > 0) {
+      // Convert from 10 gram rate to 1 gram rate
+      const ratePerGram = currentRate / 10;
       setNewItem(prev => ({
         ...prev,
-        rate_per_gram: currentRate
+        rate_per_gram: ratePerGram
       }));
       toast({
         title: "Rate Auto-Filled",
-        description: `Rate set to ₹${currentRate}/gram for ${newItem.metal_type}`,
+        description: `Rate set to ₹${ratePerGram}/gram for ${newItem.metal_type}`,
       });
     } else {
       toast({
