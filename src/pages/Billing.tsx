@@ -401,6 +401,26 @@ export default function Billing() {
     return rate ? rate.rate_per_gram : 0;
   };
 
+  const autoFillRate = () => {
+    const currentRate = getCurrentRate(newItem.metal_type);
+    if (currentRate > 0) {
+      setNewItem(prev => ({
+        ...prev,
+        rate_per_gram: currentRate
+      }));
+      toast({
+        title: "Rate Auto-Filled",
+        description: `Rate set to ₹${currentRate}/gram for ${newItem.metal_type}`,
+      });
+    } else {
+      toast({
+        title: "No Rate Found",
+        description: `No rate available for ${newItem.metal_type}`,
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Bill Search */}
@@ -650,7 +670,18 @@ export default function Billing() {
               </div>
 
               <div className="space-y-2">
-                <Label>{t('rate.per.gram')} *</Label>
+                <Label className="flex items-center justify-between">
+                  {t('rate.per.gram')} *
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={autoFillRate}
+                    className="h-6 text-xs"
+                  >
+                    Auto Fill
+                  </Button>
+                </Label>
                 <Input
                   type="number"
                   step="0.01"
