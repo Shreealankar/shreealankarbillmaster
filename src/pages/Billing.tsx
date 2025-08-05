@@ -591,6 +591,16 @@ export default function Billing() {
             </div>
 
             <div className="space-y-2">
+              <Label>Gmail ID</Label>
+              <Input
+                type="email"
+                value={customer.email}
+                onChange={(e) => setCustomer({...customer, email: e.target.value})}
+                placeholder="Enter gmail address"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label>{t('customer.address')}</Label>
               <Textarea
                 value={customer.address}
