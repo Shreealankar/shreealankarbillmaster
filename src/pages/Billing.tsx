@@ -190,10 +190,10 @@ export default function Billing() {
   };
 
   const printBill = async () => {
-    if (!customer.name || !customer.phone || billItems.length === 0) {
+    if (!customer.name || !customer.phone || !customer.email || billItems.length === 0) {
       toast({
         title: "Error", 
-        description: "Please fill customer details and add at least one item",
+        description: "Please fill customer name, phone, Gmail ID and add at least one item",
         variant: "destructive"
       });
       return;
@@ -211,6 +211,11 @@ export default function Billing() {
 
       if (existingCustomer) {
         customerId = existingCustomer.id;
+        // Update existing customer with current details including email
+        await supabase
+          .from('customers')
+          .update(customer)
+          .eq('id', customerId);
       } else {
         const { data: newCustomer } = await supabase
           .from('customers')
@@ -591,12 +596,13 @@ export default function Billing() {
             </div>
 
             <div className="space-y-2">
-              <Label>Gmail ID</Label>
+              <Label>Gmail ID *</Label>
               <Input
                 type="email"
                 value={customer.email}
                 onChange={(e) => setCustomer({...customer, email: e.target.value})}
                 placeholder="Enter gmail address"
+                required
               />
             </div>
 
