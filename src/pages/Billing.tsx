@@ -260,7 +260,7 @@ export default function Billing() {
 
       if (itemsError) throw itemsError;
 
-      setCurrentBill({ ...savedBill, items: billItems });
+      setCurrentBill({ ...savedBill, items: billItems, customer_email: customer.email });
       setShowPrint(true);
 
       toast({
@@ -286,18 +286,19 @@ export default function Billing() {
         .from('bills')
         .select(`
           *,
-          bill_items (*)
+          bill_items (*),
+          customers!bills_customer_id_fkey (email)
         `)
         .eq('bill_number', searchBillNo.trim())
         .single();
 
       if (bill) {
-        setCurrentBill(bill);
+        setCurrentBill({ ...bill, customer_email: bill.customers?.email });
         setCustomer({
           name: bill.customer_name,
           phone: bill.customer_phone,
           address: bill.customer_address || '',
-          email: ''
+          email: bill.customers?.email || ''
         });
         setBillItems(bill.bill_items || []);
         setBilling({

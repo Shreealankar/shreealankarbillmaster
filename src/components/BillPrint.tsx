@@ -10,6 +10,7 @@ interface BillPrintProps {
     customer_name: string;
     customer_phone: string;
     customer_address: string;
+    customer_email?: string;
     created_at: string;
     total_weight: number;
     total_amount: number;
@@ -171,7 +172,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
               </div>
               <div className="flex">
                 <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Email:</span>
-                <span className="text-sm text-gray-900 print:text-xs">N/A</span>
+                <span className="text-sm text-gray-900 print:text-xs">{billData.customer_email || 'N/A'}</span>
               </div>
             </div>
           </div>
