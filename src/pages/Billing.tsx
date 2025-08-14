@@ -21,7 +21,8 @@ import {
   Eye,
   Trash,
   AlertTriangle,
-  CalendarIcon
+  CalendarIcon,
+  Edit
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -70,6 +71,7 @@ export default function Billing() {
   const [showPrint, setShowPrint] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteFromTurnover, setDeleteFromTurnover] = useState(false);
+  const [isEditingBill, setIsEditingBill] = useState(false);
   
   const [newItem, setNewItem] = useState({
     item_name: '',
@@ -313,6 +315,7 @@ export default function Billing() {
           payment_method: bill.payment_method || 'cash',
           notes: bill.notes || ''
         });
+        setIsEditingBill(false);
         toast({
           title: "बिल मिळाले",
           description: `Bill ${searchBillNo} loaded successfully`,
@@ -330,6 +333,52 @@ export default function Billing() {
         description: "Failed to search bill",
         variant: "destructive"
       });
+    }
+  };
+
+  const updateBill = async () => {
+    if (!currentBill?.id) return;
+    
+    setLoading(true);
+    try {
+      // Update customer info
+      if (currentBill.customer_id) {
+        await supabase
+          .from('customers')
+          .update(customer)
+          .eq('id', currentBill.customer_id);
+      }
+
+      // Update bill
+      const billData = {
+        customer_name: customer.name,
+        customer_phone: customer.phone,
+        customer_address: customer.address,
+        total_weight: billItems.reduce((sum, item) => sum + item.weight_grams, 0),
+        ...billing
+      };
+
+      await supabase
+        .from('bills')
+        .update(billData)
+        .eq('id', currentBill.id);
+
+      toast({
+        title: "बिल अपडेट केले",
+        description: `Bill ${currentBill.bill_number} updated successfully`,
+      });
+
+      // Reload the bill to get updated data
+      await searchBill();
+      setIsEditingBill(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update bill",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -483,6 +532,37 @@ export default function Billing() {
                     <Eye className="h-4 w-4 mr-2" />
                     View
                   </Button>
+                   {!isEditingBill ? (
+                    <Button 
+                      onClick={() => setIsEditingBill(true)} 
+                      size="sm" 
+                      variant="secondary"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Bill
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={updateBill} 
+                        size="sm" 
+                        disabled={loading}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Save Changes
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setIsEditingBill(false);
+                          searchBill(); // Reload original data
+                        }} 
+                        size="sm" 
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
                   <Button 
                     onClick={() => setShowDeleteDialog(true)} 
                     size="sm" 
@@ -498,12 +578,13 @@ export default function Billing() {
         </Card>
 
         {currentBill && (
-          <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-sm font-medium text-primary">
-              लोड केलेले बिल: {currentBill.bill_number}
+          <div className={`p-3 rounded-lg border ${isEditingBill ? 'bg-orange-50 border-orange-200' : 'bg-primary/10 border-primary/20'}`}>
+            <div className={`text-sm font-medium ${isEditingBill ? 'text-orange-700' : 'text-primary'}`}>
+              {isEditingBill ? 'संपादन करत आहे' : 'लोड केलेले'} बिल: {currentBill.bill_number}
             </div>
             <div className="text-xs text-muted-foreground">
               ग्राहक: {currentBill.customer_name} | फोन: {currentBill.customer_phone}
+              {isEditingBill && <span className="ml-2 text-orange-600">(Changes can be saved)</span>}
             </div>
           </div>
         )}
