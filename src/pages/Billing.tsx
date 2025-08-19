@@ -80,6 +80,8 @@ export default function Billing() {
     weight_grams: 0,
     rate_per_gram: 0,
     making_charges: 0,
+    making_charges_type: 'manual', // 'manual' or 'percentage'
+    making_charges_percentage: 0,
     stone_charges: 0,
     other_charges: 0
   });
@@ -158,6 +160,8 @@ export default function Billing() {
       weight_grams: 0,
       rate_per_gram: 0,
       making_charges: 0,
+      making_charges_type: 'manual',
+      making_charges_percentage: 0,
       stone_charges: 0,
       other_charges: 0
     });
@@ -760,13 +764,25 @@ export default function Billing() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('weight.grams')} *</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={newItem.weight_grams || ''}
-                  onChange={(e) => setNewItem({...newItem, weight_grams: Number(e.target.value)})}
-                  placeholder="0.00"
-                />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={newItem.weight_grams || ''}
+                    onChange={(e) => {
+                      const weight = Number(e.target.value);
+                      const updatedItem = { ...newItem, weight_grams: weight };
+                      
+                      // Auto-recalculate making charges if in percentage mode
+                      if (newItem.making_charges_type === 'percentage' && newItem.making_charges_percentage > 0) {
+                        const baseAmount = weight * newItem.rate_per_gram;
+                        const calculatedCharges = (baseAmount * newItem.making_charges_percentage) / 100;
+                        updatedItem.making_charges = calculatedCharges;
+                      }
+                      
+                      setNewItem(updatedItem);
+                    }}
+                    placeholder="0.00"
+                  />
               </div>
 
               <div className="space-y-2">
@@ -786,7 +802,19 @@ export default function Billing() {
                   type="number"
                   step="0.01"
                   value={newItem.rate_per_gram || ''}
-                  onChange={(e) => setNewItem({...newItem, rate_per_gram: Number(e.target.value)})}
+                  onChange={(e) => {
+                    const rate = Number(e.target.value);
+                    const updatedItem = { ...newItem, rate_per_gram: rate };
+                    
+                    // Auto-recalculate making charges if in percentage mode
+                    if (newItem.making_charges_type === 'percentage' && newItem.making_charges_percentage > 0) {
+                      const baseAmount = newItem.weight_grams * rate;
+                      const calculatedCharges = (baseAmount * newItem.making_charges_percentage) / 100;
+                      updatedItem.making_charges = calculatedCharges;
+                    }
+                    
+                    setNewItem(updatedItem);
+                  }}
                   placeholder="0.00"
                 />
               </div>
@@ -794,13 +822,62 @@ export default function Billing() {
 
             <div className="space-y-2">
               <Label>{t('making.charges')}</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={newItem.making_charges || ''}
-                onChange={(e) => setNewItem({...newItem, making_charges: Number(e.target.value)})}
-                placeholder="0.00"
-              />
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={newItem.making_charges_type === 'manual' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setNewItem({...newItem, making_charges_type: 'manual', making_charges: 0})}
+                    className="flex-1"
+                  >
+                    Manual
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={newItem.making_charges_type === 'percentage' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setNewItem({...newItem, making_charges_type: 'percentage', making_charges_percentage: 0})}
+                    className="flex-1"
+                  >
+                    Percentage
+                  </Button>
+                </div>
+                
+                {newItem.making_charges_type === 'manual' ? (
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={newItem.making_charges || ''}
+                    onChange={(e) => setNewItem({...newItem, making_charges: Number(e.target.value)})}
+                    placeholder="0.00"
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={newItem.making_charges_percentage || ''}
+                      onChange={(e) => {
+                        const percentage = Number(e.target.value);
+                        const baseAmount = newItem.weight_grams * newItem.rate_per_gram;
+                        const calculatedCharges = (baseAmount * percentage) / 100;
+                        setNewItem({
+                          ...newItem, 
+                          making_charges_percentage: percentage,
+                          making_charges: calculatedCharges
+                        });
+                      }}
+                      placeholder="Enter percentage"
+                    />
+                    {newItem.making_charges_percentage > 0 && newItem.weight_grams > 0 && newItem.rate_per_gram > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        Calculated: ₹{newItem.making_charges.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
