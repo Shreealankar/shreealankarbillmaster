@@ -291,7 +291,25 @@ export default function Billing() {
       const { data: bill } = await supabase
         .from('bills')
         .select(`
-          *,
+          id,
+          bill_number,
+          customer_id,
+          customer_name,
+          customer_phone,
+          customer_address,
+          total_weight,
+          total_amount,
+          paid_amount,
+          balance_amount,
+          discount_percentage,
+          discount_amount,
+          tax_percentage,
+          tax_amount,
+          final_amount,
+          payment_method,
+          notes,
+          created_at,
+          updated_at,
           bill_items (*),
           customers!bills_customer_id_fkey (email)
         `)
