@@ -205,10 +205,10 @@ export default function Billing() {
       return;
     }
 
-    console.log("=== Starting bill creation ===");
-    console.log("Customer:", customer);
-    console.log("Bill items:", billItems);
-    console.log("Billing data:", billing);
+      console.log("=== Starting bill creation ===");
+      console.log("Customer:", customer);
+      console.log("Bill items:", billItems);
+      console.log("Billing data:", billing);
 
     setLoading(true);
     try {
