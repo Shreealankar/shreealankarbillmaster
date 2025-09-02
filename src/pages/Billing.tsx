@@ -205,6 +205,11 @@ export default function Billing() {
       return;
     }
 
+    console.log("=== Starting bill creation ===");
+    console.log("Customer:", customer);
+    console.log("Bill items:", billItems);
+    console.log("Billing data:", billing);
+
     setLoading(true);
     try {
       // Save or get customer
@@ -243,12 +248,16 @@ export default function Billing() {
         ...billing
       };
 
+      console.log("=== Inserting bill ===");
+      console.log("Bill data:", billData);
+
       const { data: savedBill, error: billError } = await supabase
         .from('bills')
         .insert(billData)
         .select()
         .single();
 
+      console.log("Bill insert result:", { savedBill, billError });
       if (billError) throw billError;
 
       // Save bill items (exclude frontend temp ID)
@@ -274,6 +283,11 @@ export default function Billing() {
         description: `Bill ${savedBill.bill_number} ready for print`,
       });
     } catch (error: any) {
+      console.error("=== Bill creation error ===");
+      console.error("Error details:", error);
+      console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
+      
       toast({
         title: "Error",
         description: error.message,
