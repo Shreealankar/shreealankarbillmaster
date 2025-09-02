@@ -30,6 +30,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BillPrint } from "@/components/BillPrint";
+import { EmailOTPVerification } from "@/components/EmailOTPVerification";
 
 interface BillItem {
   id: string; // Frontend temporary ID
@@ -65,6 +66,8 @@ export default function Billing() {
     address: '',
     email: ''
   });
+  
+  const [emailVerified, setEmailVerified] = useState(false);
   
   const [searchBillNo, setSearchBillNo] = useState('');
   const [currentBill, setCurrentBill] = useState<any>(null);
@@ -205,6 +208,15 @@ export default function Billing() {
       return;
     }
 
+    if (!emailVerified) {
+      toast({
+        title: "Email Verification Required", 
+        description: "Please verify the customer's Gmail address before creating the bill",
+        variant: "destructive"
+      });
+      return;
+    }
+
       console.log("=== Starting bill creation ===");
       console.log("Customer:", customer);
       console.log("Bill items:", billItems);
@@ -331,13 +343,15 @@ export default function Billing() {
         .single();
 
       if (bill) {
-        setCurrentBill({ ...bill, customer_email: bill.customers?.email });
+          setCurrentBill({ ...bill, customer_email: bill.customers?.email });
         setCustomer({
           name: bill.customer_name,
           phone: bill.customer_phone,
           address: bill.customer_address || '',
           email: bill.customers?.email || ''
         });
+        // Set email as verified if existing bill has verified email
+        setEmailVerified(bill.customers?.email ? true : false);
         setBillItems(bill.bill_items || []);
         setBilling({
           total_amount: bill.total_amount,
@@ -456,6 +470,7 @@ export default function Billing() {
 
   const resetForm = () => {
     setCustomer({ name: '', phone: '', address: '', email: '' });
+    setEmailVerified(false);
     setBillItems([]);
     setBilling({
       total_amount: 0,
@@ -480,6 +495,8 @@ export default function Billing() {
       address: selectedCustomer.address || '',
       email: selectedCustomer.email || ''
     });
+    // Reset verification when selecting a different customer
+    setEmailVerified(false);
   };
 
   const filteredCustomers = customers.filter(c => 
@@ -626,7 +643,7 @@ export default function Billing() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Customer Details */}
         <Card className="bg-card/50 backdrop-blur-sm border-border">
           <CardHeader>
@@ -714,17 +731,6 @@ export default function Billing() {
             </div>
 
             <div className="space-y-2">
-              <Label>Gmail ID *</Label>
-              <Input
-                type="email"
-                value={customer.email}
-                onChange={(e) => setCustomer({...customer, email: e.target.value})}
-                placeholder="Enter gmail address"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label>{t('customer.address')}</Label>
               <Textarea
                 value={customer.address}
@@ -736,6 +742,25 @@ export default function Billing() {
           </CardContent>
         </Card>
 
+        {/* Gmail OTP Verification */}
+        <EmailOTPVerification
+          email={customer.email}
+          onEmailChange={(email) => {
+            setCustomer({...customer, email});
+            setEmailVerified(false);
+          }}
+          onVerificationComplete={(isVerified, verifiedEmail) => {
+            setEmailVerified(isVerified);
+            if (isVerified) {
+              setCustomer({...customer, email: verifiedEmail});
+            }
+          }}
+          isRequired={true}
+        />
+
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Add Items */}
         <Card className="bg-card/50 backdrop-blur-sm border-border">
           <CardHeader>
