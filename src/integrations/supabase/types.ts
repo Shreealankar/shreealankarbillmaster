@@ -21,6 +21,8 @@ export type Database = {
           id: string
           item_name: string
           making_charges: number | null
+          making_charges_percentage: number | null
+          making_charges_type: string | null
           metal_type: string
           other_charges: number | null
           purity: string
@@ -35,6 +37,8 @@ export type Database = {
           id?: string
           item_name: string
           making_charges?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
           metal_type?: string
           other_charges?: number | null
           purity?: string
@@ -49,6 +53,8 @@ export type Database = {
           id?: string
           item_name?: string
           making_charges?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
           metal_type?: string
           other_charges?: number | null
           purity?: string
