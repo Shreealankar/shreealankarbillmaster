@@ -61,13 +61,10 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
     setVerificationError('');
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          shouldCreateUser: false, // Don't create user account
-          data: {
-            verification_type: 'email_verification'
-          }
+      const { data, error } = await supabase.functions.invoke('send-otp-email', {
+        body: { 
+          email: email.toLowerCase(),
+          type: 'send'
         }
       });
 
@@ -75,10 +72,14 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
         throw error;
       }
 
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       setOtpSent(true);
       toast({
         title: "OTP Sent",
-        description: `Verification code sent to ${email}`,
+        description: `Verification code sent to ${email}. Check your inbox and spam folder.`,
       });
     } catch (error: any) {
       console.error('Error sending OTP:', error);
@@ -106,25 +107,32 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
     setVerificationError('');
 
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email: email,
-        token: otp,
-        type: 'email'
+      const { data, error } = await supabase.functions.invoke('send-otp-email', {
+        body: { 
+          email: email.toLowerCase(),
+          type: 'verify',
+          otpCode: otp
+        }
       });
 
       if (error) {
         throw error;
       }
 
-      setIsVerified(true);
-      onVerificationComplete(true, email);
-      toast({
-        title: "Email Verified",
-        description: "Gmail address has been successfully verified!",
-      });
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
-      // Sign out immediately as we don't want to create a session
-      await supabase.auth.signOut();
+      if (data?.verified) {
+        setIsVerified(true);
+        onVerificationComplete(true, email);
+        toast({
+          title: "Email Verified",
+          description: "Gmail address has been successfully verified!",
+        });
+      } else {
+        throw new Error("Verification failed");
+      }
     } catch (error: any) {
       console.error('Error verifying OTP:', error);
       setVerificationError(error.message || "Invalid OTP. Please try again.");
@@ -231,7 +239,7 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              Check your Gmail inbox for the verification code. It may take a few minutes to arrive.
+              Check your Gmail inbox for the verification code. It may take a few minutes to arrive. Don't forget to check your spam/promotions folder.
             </p>
           </div>
         )}
