@@ -199,19 +199,20 @@ export default function Billing() {
   };
 
   const printBill = async () => {
-    if (!customer.name || !customer.phone || !customer.email || billItems.length === 0) {
+    if (!customer.name || !customer.phone || billItems.length === 0) {
       toast({
         title: "Error", 
-        description: "Please fill customer name, phone, Gmail ID and add at least one item",
+        description: "Please fill customer name, phone and add at least one item",
         variant: "destructive"
       });
       return;
     }
 
-    if (!emailVerified) {
+    // Email verification is optional - only check if email is provided
+    if (customer.email && !emailVerified) {
       toast({
         title: "Email Verification Required", 
-        description: "Please verify the customer's Gmail address before creating the bill",
+        description: "Please verify the customer's Gmail address or leave email empty to continue",
         variant: "destructive"
       });
       return;
@@ -755,7 +756,7 @@ export default function Billing() {
               setCustomer({...customer, email: verifiedEmail});
             }
           }}
-          isRequired={true}
+          isRequired={false}
         />
 
       </div>

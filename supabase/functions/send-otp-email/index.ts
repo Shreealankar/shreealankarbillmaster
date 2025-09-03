@@ -139,12 +139,24 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResponse = await resend.emails.send({
         from: "Shree Alankar <noreply@resend.dev>",
         to: [email],
-        subject: "Email Verification - Shree Alankar Jewelry",
+        subject: "Email Verification - Shree Alankar Jewelry", 
         html: createEmailTemplate(otp, email),
       });
 
       if (emailResponse.error) {
         console.error('Resend error:', emailResponse.error);
+        
+        // Handle Resend testing limitations
+        if (emailResponse.error.message?.includes('You can only send testing emails')) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Email verification is currently in testing mode. Please contact the shop owner at kiranjadhav3230@gmail.com for verification.",
+              testMode: true
+            }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
         throw new Error('Failed to send email');
       }
 

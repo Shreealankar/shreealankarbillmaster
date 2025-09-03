@@ -73,6 +73,15 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
       }
 
       if (data?.error) {
+        // Handle Resend testing mode gracefully
+        if (data.testMode) {
+          toast({
+            title: "Testing Mode", 
+            description: data.error,
+            variant: "default"
+          });
+          return;
+        }
         throw new Error(data.error);
       }
 
@@ -159,7 +168,7 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="h-5 w-5" />
-          Gmail Verification {isRequired && <span className="text-destructive">*</span>}
+          Gmail Verification (Optional)
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -198,7 +207,7 @@ export const EmailOTPVerification: React.FC<EmailOTPVerificationProps> = ({
           </div>
           {email && !isGmailAddress(email) && (
             <p className="text-sm text-orange-600">
-              Only Gmail addresses are supported for verification
+              Only Gmail addresses are supported. Note: Email verification is optional - you can leave it empty.
             </p>
           )}
         </div>
