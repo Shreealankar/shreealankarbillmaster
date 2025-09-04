@@ -30,7 +30,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BillPrint } from "@/components/BillPrint";
-import { EmailOTPVerification } from "@/components/EmailOTPVerification";
+import { NewEmailOTP } from "@/components/NewEmailOTP";
 
 interface BillItem {
   id: string; // Frontend temporary ID
@@ -744,7 +744,7 @@ export default function Billing() {
         </Card>
 
         {/* Gmail OTP Verification */}
-        <EmailOTPVerification
+        <NewEmailOTP
           email={customer.email}
           onEmailChange={(email) => {
             setCustomer({...customer, email});

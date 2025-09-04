@@ -17,3 +17,6 @@ port = 54324
 
 [functions.send-otp-email]
 verify_jwt = false
+
+[functions.email-otp]
+verify_jwt = false
