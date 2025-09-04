@@ -311,63 +311,6 @@ export type Database = {
         }
         Relationships: []
       }
-      email_otp_verifications: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          is_verified: boolean
-          otp_code: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at: string
-          id?: string
-          is_verified?: boolean
-          otp_code: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          is_verified?: boolean
-          otp_code?: string
-        }
-        Relationships: []
-      }
-      email_otps: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          is_verified: boolean
-          otp_code: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at: string
-          id?: string
-          is_verified?: boolean
-          otp_code: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          is_verified?: boolean
-          otp_code?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       jewelry_items: {
         Row: {
           created_at: string
@@ -555,14 +498,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_email_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_expired_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       generate_bill_number: {
         Args: Record<PropertyKey, never>
         Returns: string
