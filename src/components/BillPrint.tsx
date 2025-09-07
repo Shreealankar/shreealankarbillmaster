@@ -35,9 +35,10 @@ interface BillPrintProps {
     other_charges: number;
     total_amount: number;
   }>;
+  isExistingBill?: boolean;
 }
 
-export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => {
+export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExistingBill = false }) => {
   const { t } = useLanguage();
 
   const handlePrint = () => {
@@ -75,7 +76,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems }) => 
         <div className="flex gap-2 justify-center">
           <Button onClick={handlePrint} className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
             <Printer className="h-4 w-4" />
-            Print Bill
+            {isExistingBill ? 'Reprint Bill' : 'Print Bill'}
           </Button>
           <Button onClick={handleWhatsAppShare} variant="outline" className="flex items-center gap-2 border-green-500 text-green-600 hover:bg-green-50">
             <Share className="h-4 w-4" />

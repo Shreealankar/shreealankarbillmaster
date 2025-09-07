@@ -1187,6 +1187,7 @@ export default function Billing() {
             <BillPrint 
               billData={currentBill} 
               billItems={currentBill.items || billItems}
+              isExistingBill={!!currentBill.id}
             />
           </div>
         </div>

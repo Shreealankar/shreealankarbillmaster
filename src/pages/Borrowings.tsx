@@ -175,64 +175,35 @@ const Borrowings = () => {
         </Card>
       </div>
 
-      {/* Borrowings Table */}
+      {/* Simplified Borrowings Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Pending Borrowings ({borrowings.length})
+            Pending Collections ({borrowings.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {borrowings.length === 0 ? (
             <div className="text-center py-8">
               <CreditCard className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No pending borrowings found</p>
+              <p className="text-muted-foreground">No pending collections found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Borrowed Amount</TableHead>
-                    <TableHead>Paid Amount</TableHead>
-                    <TableHead>Balance</TableHead>
-                    <TableHead>Borrowed Date</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Customer Name</TableHead>
+                    <TableHead>Amount to Collect</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {borrowings.map((borrowing) => (
                     <TableRow key={borrowing.id} className={new Date(borrowing.due_date) < new Date() ? 'bg-red-50' : ''}>
-                      <TableCell className="font-medium">{borrowing.customer_name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          {borrowing.customer_phone}
-                        </div>
-                      </TableCell>
-                      <TableCell>₹{borrowing.borrowed_amount.toLocaleString('en-IN')}</TableCell>
-                      <TableCell>₹{borrowing.paid_amount.toLocaleString('en-IN')}</TableCell>
-                      <TableCell className="font-bold text-red-600">
+                      <TableCell className="font-medium text-lg">{borrowing.customer_name}</TableCell>
+                      <TableCell className="font-bold text-red-600 text-xl">
                         ₹{borrowing.balance_amount.toLocaleString('en-IN')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {new Date(borrowing.borrowed_date).toLocaleDateString('en-IN')}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {new Date(borrowing.due_date).toLocaleDateString('en-IN')}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(borrowing.status, borrowing.due_date)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -243,49 +214,40 @@ const Borrowings = () => {
         </CardContent>
       </Card>
 
-      {/* Customer Bills with Pending Amounts */}
+      {/* Simplified Customer Bills */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Receipt className="h-5 w-5" />
-            Pending Bills ({customerBills.length})
+            Pending Bill Payments ({customerBills.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {customerBills.length === 0 ? (
             <div className="text-center py-8">
               <Receipt className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No pending bills found</p>
+              <p className="text-muted-foreground">No pending bill payments found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Bill Number</TableHead>
                     <TableHead>Customer Phone</TableHead>
-                    <TableHead>Pending Amount</TableHead>
-                    <TableHead>Bill Date</TableHead>
+                    <TableHead>Amount to Collect</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {customerBills.map((bill) => (
                     <TableRow key={bill.id}>
-                      <TableCell className="font-medium">{bill.bill_number}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-lg">
                         <div className="flex items-center gap-2">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           {bill.customer_phone}
                         </div>
                       </TableCell>
-                      <TableCell className="font-bold text-red-600">
+                      <TableCell className="font-bold text-red-600 text-xl">
                         ₹{bill.balance_amount.toLocaleString('en-IN')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {new Date(bill.created_at).toLocaleDateString('en-IN')}
-                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
