@@ -6,7 +6,7 @@ import {
   Users,
   CreditCard,
   MessageSquare,
-  TrendingUp,
+  Package,
   Globe,
 } from 'lucide-react';
 import {
@@ -25,6 +25,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const menuItems = [
   { title: 'dashboard', url: '/', icon: LayoutDashboard },
+  { title: 'products', url: '/products', icon: Package },
   { title: 'billing', url: '/billing', icon: Receipt },
   { title: 'customers', url: '/customers', icon: Users },
   { title: 'borrowings', url: '/borrowings', icon: CreditCard },

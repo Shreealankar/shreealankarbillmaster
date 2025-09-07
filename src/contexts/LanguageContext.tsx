@@ -10,14 +10,18 @@ interface LanguageContextType {
 
 const translations = {
   en: {
-    // Header
-    'jewelry.billing.system': 'Jewelry Billing System',
-    'dashboard': 'Dashboard',
-    'billing': 'Billing',
-    'customers': 'Customers',
-    'borrowings': 'Borrowings',
-    'messages': 'Messages',
-    'language': 'Language',
+    // Navigation
+    dashboard: 'Dashboard',
+    products: 'Products',
+    billing: 'Billing',
+    customers: 'Customers',
+    borrowings: 'Borrowings',
+    messages: 'Messages',
+    language: 'Language',
+    
+    // Products
+    'add.product': 'Add Product',
+    'scan': 'Scan',
     
     // Dashboard
     'daily.turnover': 'Daily Turnover',
@@ -109,14 +113,18 @@ const translations = {
     'address': 'Address',
   },
   mr: {
-    // Header
-    'jewelry.billing.system': 'दागिन्यांचे बिलिंग सिस्टम',
-    'dashboard': 'डॅशबोर्ड',
-    'billing': 'बिलिंग',
-    'customers': 'ग्राहक',
-    'borrowings': 'कर्ज',
-    'messages': 'संदेश',
-    'language': 'भाषा',
+    // Navigation  
+    dashboard: 'डॅशबोर्ड',
+    products: 'उत्पादने',
+    billing: 'बिलिंग',
+    customers: 'ग्राहक',
+    borrowings: 'कर्ज',
+    messages: 'संदेश',
+    language: 'भाषा',
+    
+    // Products  
+    'add.product': 'उत्पादन जोडा',
+    'scan': 'स्कॅन',
     
     // Dashboard
     'daily.turnover': 'दैनिक व्यापार',

@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PasswordProtection } from "@/components/PasswordProtection";
 import { Layout } from "@/components/Layout";
 import Dashboard from "./pages/Dashboard";
+import Products from "./pages/Products";
 import Billing from "./pages/Billing";
 import Customers from "./pages/Customers";
 import Borrowings from "./pages/Borrowings";
@@ -26,6 +27,7 @@ const App = () => (
             <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/products" element={<Products />} />
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/borrowings" element={<Borrowings />} />
