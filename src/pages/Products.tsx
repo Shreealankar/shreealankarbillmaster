@@ -375,11 +375,22 @@ const Products = () => {
                     : `₹${selectedProduct.making_charges_manual || 0}`}
                 </div>
               </div>
-              {selectedProduct.barcode && (
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="font-mono text-lg mb-2">{selectedProduct.barcode}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {selectedProduct.unique_number} • {selectedProduct.title || selectedProduct.name_english}
+              {(selectedProduct.barcode || selectedProduct.unique_number) && (
+                <div className="space-y-3">
+                  {selectedProduct.barcode && (
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-sm text-muted-foreground mb-1">Barcode</div>
+                      <div className="font-mono text-lg font-bold">{selectedProduct.barcode}</div>
+                    </div>
+                  )}
+                  {selectedProduct.unique_number && (
+                    <div className="text-center p-4 bg-primary/10 rounded-lg">
+                      <div className="text-sm text-muted-foreground mb-1">Unique Number</div>
+                      <div className="font-mono text-lg font-bold text-primary">{selectedProduct.unique_number}</div>
+                    </div>
+                  )}
+                  <div className="text-center text-sm text-muted-foreground">
+                    {selectedProduct.title || selectedProduct.name_english}
                   </div>
                 </div>
               )}
