@@ -23,7 +23,7 @@ interface ProductFormData {
   stone_charges?: number;
   pieces?: number;
   stock_quantity?: number;
-  low_stock_threshold?: number;
+  minimum_stock?: number;
   category: 'necklace' | 'ring' | 'earring' | 'bracelet' | 'pendant' | 'other';
   type?: string;
   description?: string;
@@ -54,7 +54,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
       stone_charges: product.stone_charges || 0,
       pieces: product.pieces || 1,
       stock_quantity: product.stock_quantity || 0,
-      low_stock_threshold: product.low_stock_threshold || 5,
+      minimum_stock: product?.minimum_stock || 5,
       category: product.category || 'other',
       type: product.type || '',
       description: product.description || ''
@@ -71,7 +71,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
       stone_charges: 0,
       pieces: 1,
       stock_quantity: 0,
-      low_stock_threshold: 5,
+      minimum_stock: 5,
       category: 'other',
       type: '',
       description: ''
@@ -117,7 +117,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         stone_charges: data.stone_charges,
         pieces: data.pieces,
         stock_quantity: data.stock_quantity,
-        low_stock_threshold: data.low_stock_threshold,
+        minimum_stock: data.minimum_stock,
         barcode: product ? product.barcode : generatedCodes?.barcode,
         unique_number: product ? product.unique_number : generatedCodes?.uniqueNumber,
       };
@@ -329,11 +329,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="low_stock_threshold">Low Stock Alert Threshold</Label>
+          <Label htmlFor="minimum_stock">Minimum Stock Alert Threshold</Label>
           <Input
-            id="low_stock_threshold"
+            id="minimum_stock"
             type="number"
-            {...register('low_stock_threshold')}
+            {...register('minimum_stock')}
             placeholder="5"
           />
         </div>

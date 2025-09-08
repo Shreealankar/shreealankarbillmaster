@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye } from 'lucide-react';
+import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ProductForm } from "@/components/ProductForm";
-import { ProductScanner } from "@/components/ProductScanner";
 
 interface Product {
   id: string;
@@ -25,7 +25,7 @@ interface Product {
   stone_charges?: number;
   pieces?: number;
   stock_quantity?: number;
-  low_stock_threshold?: number;
+  minimum_stock?: number;
   barcode?: string;
   unique_number?: string;
   category: 'necklace' | 'ring' | 'earring' | 'bracelet' | 'pendant' | 'other';
@@ -43,7 +43,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
+  const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
 
   // Dashboard stats
   const totalProducts = products.length;
@@ -51,7 +51,7 @@ const Products = () => {
   const silverProducts = products.filter(p => p.metal_type === 'silver');
   const totalGoldWeight = goldProducts.reduce((sum, p) => sum + ((p.weight_grams || 0) * (p.pieces || 1)), 0);
   const totalSilverWeight = silverProducts.reduce((sum, p) => sum + ((p.weight_grams || 0) * (p.pieces || 1)), 0);
-  const lowStockProducts = products.filter(p => (p.stock_quantity || 0) <= (p.low_stock_threshold || 5));
+  const lowStockProducts = products.filter(p => (p.stock_quantity || 0) <= (p.minimum_stock || 5));
   const outOfStockProducts = products.filter(p => (p.stock_quantity || 0) === 0);
 
   // Filter products based on search
@@ -99,17 +99,33 @@ const Products = () => {
     setShowForm(true);
   };
 
-  const handleScanResult = (result: string) => {
-    const product = products.find(p => 
-      p.barcode === result || p.unique_number === result
-    );
-    if (product) {
-      setSelectedProduct(product);
-      setShowScanner(false);
-    } else {
+  const handleDelete = (product: Product) => {
+    setDeleteProduct(product);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteProduct) return;
+    
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', deleteProduct.id);
+
+      if (error) throw error;
+      
       toast({
-        title: "Product not found",
-        description: "No product found with this barcode or unique number",
+        title: "Product deleted",
+        description: `${deleteProduct.name_english} has been deleted successfully`,
+      });
+      
+      fetchProducts();
+      setDeleteProduct(null);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
         variant: "destructive",
       });
     }
@@ -131,16 +147,10 @@ const Products = () => {
           <h1 className="text-3xl font-bold text-foreground">{t('products')}</h1>
           <p className="text-muted-foreground">Manage your jewelry inventory</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowScanner(true)} variant="outline">
-            <Search className="h-4 w-4 mr-2" />
-            {t('scan')}
-          </Button>
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t('add.product')}
-          </Button>
-        </div>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          {t('add.product')}
+        </Button>
       </div>
 
       {/* Dashboard Cards */}
@@ -275,22 +285,30 @@ const Products = () => {
                     {product.barcode && <span>Barcode: {product.barcode}</span>}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(product)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedProduct(product)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEdit(product)}
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDelete(product)}
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
               </div>
             ))}
           </div>
@@ -367,18 +385,23 @@ const Products = () => {
         </Dialog>
       )}
 
-      {/* Scanner Dialog */}
-      <Dialog open={showScanner} onOpenChange={setShowScanner}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Scan Product</DialogTitle>
-            <DialogDescription>
-              Scan a barcode or enter a unique number to find a product
-            </DialogDescription>
-          </DialogHeader>
-          <ProductScanner onScan={handleScanResult} />
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteProduct} onOpenChange={() => setDeleteProduct(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteProduct?.name_english}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

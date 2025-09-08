@@ -29,7 +29,9 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BillPrint } from "@/components/BillPrint";
+import { ProductScanner } from "@/components/ProductScanner";
 
 interface BillItem {
   id: string; // Frontend temporary ID
@@ -102,10 +104,13 @@ export default function Billing() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [billDate, setBillDate] = useState<Date>(new Date());
+  const [showScanner, setShowScanner] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     fetchCustomers();
     fetchRates();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -128,6 +133,52 @@ export default function Billing() {
       .order('metal_type');
     
     if (data) setRates(data);
+  };
+
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .order('name_english');
+    
+    if (data) setProducts(data);
+  };
+
+  const handleScanResult = (result: string) => {
+    const product = products.find(p => 
+      p.barcode === result || p.unique_number === result
+    );
+    if (product) {
+      // Auto-populate item data from scanned product
+      const currentRate = getCurrentRate(product.type || 'gold');
+      const ratePerGram = currentRate > 0 ? currentRate / 10 : 0;
+      
+      setNewItem({
+        item_name: product.name_english || product.title,
+        metal_type: product.type || 'gold',
+        purity: product.purity || '22k',
+        weight_grams: product.weight_grams || 0,
+        rate_per_gram: ratePerGram,
+        making_charges: product.making_charges_type === 'percentage' 
+          ? ((product.weight_grams || 0) * ratePerGram * (product.making_charges_value || 0)) / 100
+          : product.making_charges_value || 0,
+        making_charges_type: product.making_charges_type || 'manual',
+        making_charges_percentage: product.making_charges_value || 0,
+        stone_charges: product.stone_charges || 0,
+        other_charges: product.other_charges || 0
+      });
+      setShowScanner(false);
+      toast({
+        title: "Product Found",
+        description: `${product.name_english} data loaded successfully`,
+      });
+    } else {
+      toast({
+        title: "Product not found",
+        description: "No product found with this barcode or unique number",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateItemTotal = (item: typeof newItem) => {
@@ -746,7 +797,18 @@ export default function Billing() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>{t('item.name')} *</Label>
+              <div className="flex justify-between items-center">
+                <Label>{t('item.name')} *</Label>
+                <Button 
+                  type="button" 
+                  onClick={() => setShowScanner(true)}
+                  variant="outline" 
+                  size="sm"
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  Scan Product
+                </Button>
+              </div>
               <Input
                 value={newItem.item_name}
                 onChange={(e) => setNewItem({...newItem, item_name: e.target.value})}
@@ -1192,6 +1254,18 @@ export default function Billing() {
           </div>
         </div>
       )}
+      {/* Scanner Dialog */}
+      <Dialog open={showScanner} onOpenChange={setShowScanner}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Scan Product</DialogTitle>
+            <DialogDescription>
+              Scan a barcode or enter a unique number to find and add a product
+            </DialogDescription>
+          </DialogHeader>
+          <ProductScanner onScan={handleScanResult} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
