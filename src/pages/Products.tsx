@@ -20,7 +20,8 @@ interface Product {
   purity: string;
   metal_type?: 'gold' | 'silver';
   making_charges_type?: 'percentage' | 'manual';
-  making_charges_value?: number;
+  making_charges_percentage?: number;
+  making_charges_manual?: number;
   other_charges?: number;
   stone_charges?: number;
   pieces?: number;
@@ -368,8 +369,10 @@ const Products = () => {
                   <span className="font-medium">Stock:</span> {selectedProduct.stock_quantity || 0}
                 </div>
                 <div>
-                  <span className="font-medium">Making Charges:</span> {selectedProduct.making_charges_value || 0}
-                  {selectedProduct.making_charges_type === 'percentage' ? '%' : ' ₹'}
+                  <span className="font-medium">Making Charges:</span> 
+                  {selectedProduct.making_charges_type === 'percentage' 
+                    ? `${selectedProduct.making_charges_percentage || 0}%` 
+                    : `₹${selectedProduct.making_charges_manual || 0}`}
                 </div>
               </div>
               {selectedProduct.barcode && (

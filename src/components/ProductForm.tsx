@@ -18,7 +18,8 @@ interface ProductFormData {
   purity: string;
   metal_type?: 'gold' | 'silver';
   making_charges_type?: 'percentage' | 'manual';
-  making_charges_value?: number;
+  making_charges_percentage?: number;
+  making_charges_manual?: number;
   other_charges?: number;
   stone_charges?: number;
   pieces?: number;
@@ -49,7 +50,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
       purity: product.purity || '',
       metal_type: product.metal_type || 'gold',
       making_charges_type: product.making_charges_type || 'percentage',
-      making_charges_value: product.making_charges_value || 0,
+      making_charges_percentage: product.making_charges_percentage || 0,
+      making_charges_manual: product.making_charges_manual || 0,
       other_charges: product.other_charges || 0,
       stone_charges: product.stone_charges || 0,
       pieces: product.pieces || 1,
@@ -66,7 +68,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
       purity: '',
       metal_type: 'gold',
       making_charges_type: 'percentage',
-      making_charges_value: 0,
+      making_charges_percentage: 0,
+      making_charges_manual: 0,
       other_charges: 0,
       stone_charges: 0,
       pieces: 1,
@@ -84,7 +87,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
   // Generate barcode and unique number for new products
   useEffect(() => {
     if (!product) {
-      // For now, generate simple codes locally since RPC functions might not be available yet
+      // Generate simple codes locally
       const generateLocalCodes = () => {
         const randomNum = Math.floor(Math.random() * 90000000 + 10000000);
         const timestamp = Date.now().toString().slice(-4);
@@ -112,7 +115,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         name_marathi: data.name_marathi,
         metal_type: data.metal_type,
         making_charges_type: data.making_charges_type,
-        making_charges_value: data.making_charges_value,
+        making_charges_percentage: data.making_charges_percentage,
+        making_charges_manual: data.making_charges_manual,
         other_charges: data.other_charges,
         stone_charges: data.stone_charges,
         pieces: data.pieces,
@@ -280,11 +284,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         <Input
           type="number"
           step="0.01"
-          {...register('making_charges_value', { required: 'Making charges is required' })}
+          {...register(makingChargesType === 'percentage' ? 'making_charges_percentage' : 'making_charges_manual', { required: 'Making charges is required' })}
           placeholder={makingChargesType === 'percentage' ? 'Enter percentage' : 'Enter amount in ₹'}
         />
-        {errors.making_charges_value && (
-          <p className="text-sm text-red-500">{errors.making_charges_value.message}</p>
+        {(errors.making_charges_percentage || errors.making_charges_manual) && (
+          <p className="text-sm text-red-500">Making charges is required</p>
         )}
       </div>
 

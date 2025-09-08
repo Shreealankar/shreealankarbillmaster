@@ -160,10 +160,10 @@ export default function Billing() {
         weight_grams: product.weight_grams || 0,
         rate_per_gram: ratePerGram,
         making_charges: product.making_charges_type === 'percentage' 
-          ? ((product.weight_grams || 0) * ratePerGram * (product.making_charges_value || 0)) / 100
-          : product.making_charges_value || 0,
+          ? ((product.weight_grams || 0) * ratePerGram * (product.making_charges_percentage || 0)) / 100
+          : product.making_charges_manual || 0,
         making_charges_type: product.making_charges_type || 'manual',
-        making_charges_percentage: product.making_charges_value || 0,
+        making_charges_percentage: product.making_charges_percentage || 0,
         stone_charges: product.stone_charges || 0,
         other_charges: product.other_charges || 0
       });
