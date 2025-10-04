@@ -34,6 +34,27 @@ const Bookings = () => {
 
   useEffect(() => {
     fetchBookings();
+
+    // Subscribe to real-time updates for bookings
+    const channel = supabase
+      .channel('bookings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings'
+        },
+        (payload) => {
+          console.log('Booking change received:', payload);
+          fetchBookings(); // Refresh bookings when any change occurs
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchBookings = async () => {
