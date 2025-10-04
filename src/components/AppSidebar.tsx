@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Package,
   Globe,
+  Bell,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const menuItems = [
   { title: 'products', url: '/products', icon: Package },
   { title: 'billing', url: '/billing', icon: Receipt },
   { title: 'customers', url: '/customers', icon: Users },
+  { title: 'bookings', url: '/bookings', icon: Bell },
   { title: 'borrowings', url: '/borrowings', icon: CreditCard },
   { title: 'messages', url: '/messages', icon: MessageSquare },
 ];

@@ -111,6 +111,7 @@ export default function Billing() {
     fetchCustomers();
     fetchRates();
     fetchProducts();
+    loadBookingData();
   }, []);
 
   useEffect(() => {
@@ -142,6 +143,41 @@ export default function Billing() {
       .order('name_english');
     
     if (data) setProducts(data);
+  };
+
+  const loadBookingData = () => {
+    const bookingData = sessionStorage.getItem('bookingData');
+    if (bookingData) {
+      try {
+        const data = JSON.parse(bookingData);
+        setCustomer({
+          name: data.customerName || '',
+          phone: data.customerPhone || '',
+          address: data.customerAddress || '',
+          email: data.email || ''
+        });
+        
+        // Optionally prefill an item with the gold weight
+        if (data.goldWeight) {
+          const goldRate = getCurrentRate('gold');
+          setNewItem(prev => ({
+            ...prev,
+            weight_grams: data.goldWeight,
+            rate_per_gram: goldRate > 0 ? goldRate / 10 : 0
+          }));
+        }
+        
+        // Clear the session storage after loading
+        sessionStorage.removeItem('bookingData');
+        
+        toast({
+          title: "Booking Data Loaded",
+          description: "Customer information has been filled from booking",
+        });
+      } catch (error) {
+        console.error('Error loading booking data:', error);
+      }
+    }
   };
 
   const handleScanResult = (result: string) => {
