@@ -147,6 +147,65 @@ export type Database = {
           },
         ]
       }
+      bookings: {
+        Row: {
+          booking_code: string
+          booking_type: string
+          created_at: string
+          customer_id: string | null
+          email: string
+          full_address: string
+          full_name: string
+          gold_weight: number
+          id: string
+          primary_mobile: string
+          secondary_mobile: string | null
+          status: string
+          terms_accepted: boolean
+          updated_at: string
+        }
+        Insert: {
+          booking_code: string
+          booking_type: string
+          created_at?: string
+          customer_id?: string | null
+          email: string
+          full_address: string
+          full_name: string
+          gold_weight: number
+          id?: string
+          primary_mobile: string
+          secondary_mobile?: string | null
+          status?: string
+          terms_accepted?: boolean
+          updated_at?: string
+        }
+        Update: {
+          booking_code?: string
+          booking_type?: string
+          created_at?: string
+          customer_id?: string | null
+          email?: string
+          full_address?: string
+          full_name?: string
+          gold_weight?: number
+          id?: string
+          primary_mobile?: string
+          secondary_mobile?: string | null
+          status?: string
+          terms_accepted?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       borrowings: {
         Row: {
           balance_amount: number
@@ -311,6 +370,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_otps: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          is_verified: boolean
+          otp_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          is_verified?: boolean
+          otp_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          otp_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jewelry_items: {
         Row: {
           created_at: string
@@ -387,38 +476,77 @@ export type Database = {
       }
       products: {
         Row: {
+          barcode: string | null
           category: Database["public"]["Enums"]["product_category"]
           created_at: string
           description: string | null
           id: string
           image_url: string | null
+          making_charges_manual: number | null
+          making_charges_percentage: number | null
+          making_charges_type: string | null
+          minimum_stock: number | null
+          name_english: string
+          name_marathi: string | null
+          other_charges: number | null
+          pieces: number | null
           purity: string
-          title: string
+          status: string | null
+          stock_quantity: number | null
+          stone_charges: number | null
+          title: string | null
           type: string
+          unique_number: string | null
           updated_at: string
           weight_grams: number
         }
         Insert: {
+          barcode?: string | null
           category: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
+          making_charges_manual?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
+          minimum_stock?: number | null
+          name_english?: string
+          name_marathi?: string | null
+          other_charges?: number | null
+          pieces?: number | null
           purity?: string
-          title: string
+          status?: string | null
+          stock_quantity?: number | null
+          stone_charges?: number | null
+          title?: string | null
           type?: string
+          unique_number?: string | null
           updated_at?: string
           weight_grams: number
         }
         Update: {
+          barcode?: string | null
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
+          making_charges_manual?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
+          minimum_stock?: number | null
+          name_english?: string
+          name_marathi?: string | null
+          other_charges?: number | null
+          pieces?: number | null
           purity?: string
-          title?: string
+          status?: string | null
+          stock_quantity?: number | null
+          stone_charges?: number | null
+          title?: string | null
           type?: string
+          unique_number?: string | null
           updated_at?: string
           weight_grams?: number
         }
@@ -448,6 +576,7 @@ export type Database = {
       rates: {
         Row: {
           id: string
+          is_locked: boolean | null
           metal_type: string
           rate_per_gram: number
           updated_at: string
@@ -455,6 +584,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          is_locked?: boolean | null
           metal_type: string
           rate_per_gram: number
           updated_at?: string
@@ -462,6 +592,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          is_locked?: boolean | null
           metal_type?: string
           rate_per_gram?: number
           updated_at?: string
@@ -498,9 +629,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_email_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_bill_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      generate_booking_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_product_barcode: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_product_unique_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      update_rate_lock_status: {
+        Args: { p_is_locked: boolean; p_metal_type: string }
+        Returns: undefined
       }
     }
     Enums: {

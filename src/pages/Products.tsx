@@ -72,7 +72,7 @@ const Products = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+      setProducts((data as any) || []);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
