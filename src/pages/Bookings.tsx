@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calendar, Phone, Mail, MapPin, Weight, Bell, ArrowRight, RefreshCw } from 'lucide-react';
+import { Calendar, Phone, Mail, MapPin, Weight, Bell, RefreshCw, Receipt } from 'lucide-react';
+import { BookingReceipt } from '@/components/BookingReceipt';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,9 +28,10 @@ interface Booking {
 const Bookings = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -104,18 +105,9 @@ const Bookings = () => {
     }
   };
 
-  const convertToBill = (booking: Booking) => {
-    // Store booking data in sessionStorage to pass to billing page
-    sessionStorage.setItem('bookingData', JSON.stringify({
-      customerName: booking.full_name,
-      customerPhone: booking.primary_mobile,
-      customerAddress: booking.full_address,
-      email: booking.email,
-      goldWeight: booking.gold_weight,
-      bookingId: booking.id
-    }));
-    
-    navigate('/billing');
+  const handleMakeReceipt = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setShowReceipt(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -156,6 +148,22 @@ const Bookings = () => {
       <div className="p-8 text-center">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
         <p className="mt-2 text-muted-foreground">Loading bookings...</p>
+      </div>
+    );
+  }
+
+  // Show receipt if selected
+  if (showReceipt && selectedBooking) {
+    return (
+      <div className="p-6">
+        <Button 
+          onClick={() => setShowReceipt(false)} 
+          variant="outline" 
+          className="mb-4"
+        >
+          ← Back to Bookings
+        </Button>
+        <BookingReceipt bookingData={selectedBooking} />
       </div>
     );
   }
@@ -333,11 +341,11 @@ const Bookings = () => {
                       <TableCell>
                         <Button
                           size="sm"
-                          onClick={() => convertToBill(booking)}
-                          className="whitespace-nowrap"
+                          onClick={() => handleMakeReceipt(booking)}
+                          className="whitespace-nowrap bg-purple-600 hover:bg-purple-700"
                         >
-                          <ArrowRight className="h-4 w-4 mr-1" />
-                          To Bill
+                          <Receipt className="h-4 w-4 mr-1" />
+                          Receipt
                         </Button>
                       </TableCell>
                     </TableRow>
