@@ -17,9 +17,14 @@ interface BookingReceiptProps {
     status: string;
     created_at: string;
   };
+  receiptData: {
+    paid_amount: number;
+    jewelry_name?: string | null;
+    notes?: string | null;
+  };
 }
 
-export const BookingReceipt: React.FC<BookingReceiptProps> = ({ bookingData }) => {
+export const BookingReceipt: React.FC<BookingReceiptProps> = ({ bookingData, receiptData }) => {
   const { t } = useLanguage();
 
   const handlePrint = () => {
@@ -201,6 +206,29 @@ export const BookingReceipt: React.FC<BookingReceiptProps> = ({ bookingData }) =
               <p className="text-xl font-bold text-purple-600 print:text-base">{bookingData.gold_weight} grams</p>
             </div>
           </div>
+        </div>
+
+        {/* Payment Details */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6 print:shadow-none print:p-4 print:mb-4">
+          <h3 className="text-lg font-semibold text-purple-600 mb-4 print:text-base print:mb-2 border-b-2 border-purple-200 pb-2 print:pb-1">Payment Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-gray-600 print:text-xs">Paid Amount</span>
+              <span className="text-2xl text-green-600 font-bold print:text-lg">₹{receiptData.paid_amount.toFixed(2)}</span>
+            </div>
+            {receiptData.jewelry_name && (
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-gray-600 print:text-xs">Jewelry Name</span>
+                <span className="text-base text-gray-900 font-medium print:text-sm">{receiptData.jewelry_name}</span>
+              </div>
+            )}
+          </div>
+          {receiptData.notes && (
+            <div className="mt-4 print:mt-2">
+              <span className="text-sm font-semibold text-gray-600 print:text-xs block mb-1">Notes</span>
+              <p className="text-sm text-gray-700 print:text-xs bg-gray-50 p-3 rounded print:p-2">{receiptData.notes}</p>
+            </div>
+          )}
         </div>
 
         {/* Important Notes */}

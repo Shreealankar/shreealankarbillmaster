@@ -147,6 +147,44 @@ export type Database = {
           },
         ]
       }
+      booking_receipts: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          jewelry_name: string | null
+          notes: string | null
+          paid_amount: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          jewelry_name?: string | null
+          notes?: string | null
+          paid_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          jewelry_name?: string | null
+          notes?: string | null
+          paid_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_receipts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_code: string

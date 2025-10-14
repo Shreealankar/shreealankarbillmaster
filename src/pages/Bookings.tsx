@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Calendar, Phone, Mail, MapPin, Weight, Bell, RefreshCw, Receipt } from 'lucide-react';
 import { BookingReceipt } from '@/components/BookingReceipt';
+import { BookingReceiptForm } from '@/components/BookingReceiptForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -32,6 +33,8 @@ const Bookings = () => {
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showReceiptForm, setShowReceiptForm] = useState(false);
+  const [currentReceiptData, setCurrentReceiptData] = useState<any>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -105,8 +108,30 @@ const Bookings = () => {
     }
   };
 
-  const handleMakeReceipt = (booking: Booking) => {
+  const handleMakeReceipt = async (booking: Booking) => {
     setSelectedBooking(booking);
+    
+    // Check if receipt already exists
+    const { data: existingReceipt } = await supabase
+      .from('booking_receipts')
+      .select('*')
+      .eq('booking_id', booking.id)
+      .maybeSingle();
+
+    setCurrentReceiptData(existingReceipt);
+    setShowReceiptForm(true);
+  };
+
+  const handleReceiptFormSuccess = async () => {
+    // Fetch the receipt data
+    const { data: receiptData } = await supabase
+      .from('booking_receipts')
+      .select('*')
+      .eq('booking_id', selectedBooking!.id)
+      .single();
+
+    setCurrentReceiptData(receiptData);
+    setShowReceiptForm(false);
     setShowReceipt(true);
   };
 
@@ -153,7 +178,7 @@ const Bookings = () => {
   }
 
   // Show receipt if selected
-  if (showReceipt && selectedBooking) {
+  if (showReceipt && selectedBooking && currentReceiptData) {
     return (
       <div className="p-6">
         <Button 
@@ -163,7 +188,10 @@ const Bookings = () => {
         >
           ← Back to Bookings
         </Button>
-        <BookingReceipt bookingData={selectedBooking} />
+        <BookingReceipt 
+          bookingData={selectedBooking} 
+          receiptData={currentReceiptData}
+        />
       </div>
     );
   }
@@ -231,6 +259,17 @@ const Bookings = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Booking Receipt Form Dialog */}
+      {showReceiptForm && selectedBooking && (
+        <BookingReceiptForm
+          booking={selectedBooking}
+          existingReceipt={currentReceiptData}
+          open={showReceiptForm}
+          onOpenChange={setShowReceiptForm}
+          onSuccess={handleReceiptFormSuccess}
+        />
+      )}
 
       {/* Bookings Table */}
       <Card>
