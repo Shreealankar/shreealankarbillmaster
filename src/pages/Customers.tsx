@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Users, Phone, Mail, MapPin, Search, Plus, Edit, Trash2, Receipt, ArrowLeft, Calendar } from 'lucide-react';
+import { Users, Phone, Mail, MapPin, Search, Plus, Edit, Trash2, Receipt, ArrowLeft, Calendar, Bell } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,20 @@ interface CustomerBill {
   bill_items: any[];
 }
 
+interface CustomerBooking {
+  id: string;
+  booking_code: string;
+  full_name: string;
+  primary_mobile: string;
+  secondary_mobile: string | null;
+  email: string;
+  full_address: string;
+  booking_type: string;
+  gold_weight: number;
+  status: string;
+  created_at: string;
+}
+
 const Customers = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -50,6 +64,7 @@ const Customers = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerBills, setCustomerBills] = useState<CustomerBill[]>([]);
+  const [customerBookings, setCustomerBookings] = useState<CustomerBooking[]>([]);
   const [loadingBills, setLoadingBills] = useState(false);
   const [showPrintBill, setShowPrintBill] = useState<CustomerBill | null>(null);
 
@@ -118,14 +133,36 @@ const Customers = () => {
     }
   };
 
+  const fetchCustomerBookings = async (customerName: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('full_name', customerName)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCustomerBookings(data || []);
+    } catch (error) {
+      console.error('Error fetching customer bookings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch customer bookings",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCustomerClick = (customer: Customer) => {
     setSelectedCustomer(customer);
     fetchCustomerBills(customer.name);
+    fetchCustomerBookings(customer.name);
   };
 
   const handleBackToCustomers = () => {
     setSelectedCustomer(null);
     setCustomerBills([]);
+    setCustomerBookings([]);
     setShowPrintBill(null);
   };
 
@@ -176,9 +213,14 @@ const Customers = () => {
               <p className="text-muted-foreground">{selectedCustomer.phone}</p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            Total Bills: {customerBills.length}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              Bills: {customerBills.length}
+            </Badge>
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              Bookings: {customerBookings.length}
+            </Badge>
+          </div>
         </div>
 
         <Card>
@@ -235,6 +277,67 @@ const Customers = () => {
                           >
                             View Bill
                           </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Customer Bookings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Bookings for {selectedCustomer.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {customerBookings.length === 0 ? (
+              <div className="text-center py-8">
+                <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No bookings found for this customer</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Booking Code</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Weight (g)</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customerBookings.map((booking) => (
+                      <TableRow key={booking.id}>
+                        <TableCell className="font-mono font-semibold">{booking.booking_code}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{booking.booking_type}</Badge>
+                        </TableCell>
+                        <TableCell className="font-semibold">{booking.gold_weight}g</TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              booking.status === 'confirmed' ? 'bg-green-500' :
+                              booking.status === 'delivered' ? 'bg-blue-500' :
+                              booking.status === 'cancelled' ? 'bg-red-500' :
+                              'bg-yellow-500'
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {new Date(booking.created_at).toLocaleDateString('en-IN')}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

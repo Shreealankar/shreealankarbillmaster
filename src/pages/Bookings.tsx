@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calendar, Phone, Mail, MapPin, Weight, Bell, RefreshCw, Receipt } from 'lucide-react';
+import { Calendar, Phone, Mail, MapPin, Weight, Bell, RefreshCw, Receipt, Plus } from 'lucide-react';
 import { BookingReceipt } from '@/components/BookingReceipt';
 import { BookingReceiptForm } from '@/components/BookingReceiptForm';
+import { BookingForm } from '@/components/BookingForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,6 +36,7 @@ const Bookings = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [showReceiptForm, setShowReceiptForm] = useState(false);
   const [currentReceiptData, setCurrentReceiptData] = useState<any>(null);
+  const [showAddBookingForm, setShowAddBookingForm] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -206,10 +208,16 @@ const Bookings = () => {
           </h1>
           <p className="text-muted-foreground">Manage bookings from your website</p>
         </div>
-        <Button onClick={fetchBookings} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddBookingForm(true)} className="bg-primary">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Booking
+          </Button>
+          <Button onClick={fetchBookings} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -259,6 +267,13 @@ const Bookings = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add Booking Form Dialog */}
+      <BookingForm
+        open={showAddBookingForm}
+        onOpenChange={setShowAddBookingForm}
+        onSuccess={fetchBookings}
+      />
 
       {/* Booking Receipt Form Dialog */}
       {showReceiptForm && selectedBooking && (
