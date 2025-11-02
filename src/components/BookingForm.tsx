@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -20,7 +21,9 @@ const bookingFormSchema = z.object({
   full_address: z.string().min(1, 'Address is required'),
   booking_type: z.string().min(1, 'Booking type is required'),
   gold_weight: z.string().min(1, 'Gold weight is required'),
-  terms_accepted: z.boolean().default(true),
+  terms_accepted: z.boolean().refine(val => val === true, {
+    message: 'You must accept the terms and conditions',
+  }),
 });
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
@@ -45,7 +48,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ open, onOpenChange, on
       full_address: '',
       booking_type: '',
       gold_weight: '',
-      terms_accepted: true,
+      terms_accepted: false,
     },
   });
 
@@ -210,6 +213,27 @@ export const BookingForm: React.FC<BookingFormProps> = ({ open, onOpenChange, on
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="terms_accepted"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      I accept the terms and conditions
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
 
             <div className="flex justify-end gap-2 pt-4">
               <Button
