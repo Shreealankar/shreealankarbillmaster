@@ -53,7 +53,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ open, onOpenChange, on
     try {
       setIsSubmitting(true);
 
-      const { error } = await supabase.from('bookings' as any).insert([
+      const { error } = await supabase.from('bookings').insert([
         {
           full_name: data.full_name,
           email: data.email,

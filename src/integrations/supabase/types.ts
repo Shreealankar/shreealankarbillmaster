@@ -203,7 +203,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          booking_code: string
+          booking_code?: string
           booking_type: string
           created_at?: string
           customer_id?: string | null
@@ -667,30 +667,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_email_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_expired_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      generate_bill_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_booking_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_product_barcode: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_product_unique_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      cleanup_expired_email_otps: { Args: never; Returns: undefined }
+      cleanup_expired_otps: { Args: never; Returns: undefined }
+      generate_bill_number: { Args: never; Returns: string }
+      generate_product_barcode: { Args: never; Returns: string }
+      generate_product_unique_number: { Args: never; Returns: string }
       update_rate_lock_status: {
         Args: { p_is_locked: boolean; p_metal_type: string }
         Returns: undefined
