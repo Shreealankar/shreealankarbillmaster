@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import Barcode from 'react-barcode';
 import { Button } from "@/components/ui/button";
 import { Printer } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,10 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
       });
       return;
     }
+
+    // Get the SVG barcode element and convert to string
+    const barcodeElement = printContent.querySelector('svg');
+    const barcodeHTML = barcodeElement ? barcodeElement.outerHTML : '';
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -88,20 +93,40 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
               padding-top: 4px;
               border-top: 1px solid #ccc;
             }
-            .barcode {
-              font-family: 'Courier New', monospace;
-              font-size: 14px;
-              font-weight: bold;
-              letter-spacing: 1px;
+            .barcode-svg {
+              margin: 4px auto;
             }
             .code {
               font-size: 9px;
               color: #666;
+              margin-top: 2px;
             }
           </style>
         </head>
         <body>
-          ${printContent.innerHTML}
+          <div class="tag-container">
+            <div>
+              <div class="product-name">
+                ${product.name_english || product.title}
+              </div>
+              ${product.name_marathi ? `<div class="product-name-mr">${product.name_marathi}</div>` : ''}
+              <div class="product-info">
+                <div class="info-row">
+                  <span class="label">Weight:</span>
+                  <span>${product.weight_grams}g</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Purity:</span>
+                  <span>${product.purity}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="barcode-section">
+              ${barcodeHTML}
+              ${product.unique_number ? `<div class="code">${product.unique_number}</div>` : ''}
+            </div>
+          </div>
         </body>
       </html>
     `);
@@ -115,43 +140,57 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
 
   return (
     <div>
-      <Button onClick={handlePrint} className="w-full">
+      <Button onClick={handlePrint} className="w-full mb-4">
         <Printer className="h-4 w-4 mr-2" />
         Print Tag
       </Button>
       
-      {/* Hidden print content */}
+      {/* Visual preview */}
+      <div className="border-2 border-border rounded-lg p-4 bg-background text-center">
+        <h3 className="font-bold text-sm mb-1">{product.name_english || product.title}</h3>
+        {product.name_marathi && (
+          <p className="text-sm text-muted-foreground mb-2">{product.name_marathi}</p>
+        )}
+        
+        <div className="grid grid-cols-2 gap-2 text-xs my-3">
+          <div>
+            <span className="font-medium">Weight:</span> {product.weight_grams}g
+          </div>
+          <div>
+            <span className="font-medium">Purity:</span> {product.purity}
+          </div>
+        </div>
+
+        <div className="border-t pt-3 mt-3">
+          {product.barcode && (
+            <div className="flex justify-center">
+              <Barcode 
+                value={product.barcode} 
+                height={50}
+                width={1.5}
+                fontSize={12}
+                margin={5}
+              />
+            </div>
+          )}
+          {product.unique_number && (
+            <p className="text-xs text-muted-foreground mt-2">{product.unique_number}</p>
+          )}
+        </div>
+      </div>
+      
+      {/* Hidden print content with barcode */}
       <div style={{ display: 'none' }}>
         <div ref={printRef}>
-          <div className="tag-container">
-            <div>
-              <div className="product-name">
-                {product.name_english || product.title}
-              </div>
-              {product.name_marathi && (
-                <div className="product-name-mr">{product.name_marathi}</div>
-              )}
-              <div className="product-info">
-                <div className="info-row">
-                  <span className="label">Weight:</span>
-                  <span>{product.weight_grams}g</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Purity:</span>
-                  <span>{product.purity}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="barcode-section">
-              {product.barcode && (
-                <div className="barcode">{product.barcode}</div>
-              )}
-              {product.unique_number && (
-                <div className="code">{product.unique_number}</div>
-              )}
-            </div>
-          </div>
+          {product.barcode && (
+            <Barcode 
+              value={product.barcode} 
+              height={40}
+              width={1.5}
+              fontSize={10}
+              margin={0}
+            />
+          )}
         </div>
       </div>
     </div>

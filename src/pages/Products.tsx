@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye, Trash2, Printer } from 'lucide-react';
+import Barcode from 'react-barcode';
+import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye, Trash2, Printer, ScanLine } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ProductForm } from "@/components/ProductForm";
 import { ProductTag } from "@/components/ProductTag";
+import { ProductScanner } from "@/components/ProductScanner";
 
 interface Product {
   id: string;
@@ -45,6 +47,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
 
   // Dashboard stats
@@ -105,6 +108,33 @@ const Products = () => {
     setDeleteProduct(product);
   };
 
+  const handleScan = async (scannedValue: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .or(`barcode.eq.${scannedValue},unique_number.eq.${scannedValue}`)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setSelectedProduct(data as Product);
+        setShowScanner(false);
+        toast({
+          title: "Product Found",
+          description: `${data.name_english || data.title}`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Product Not Found",
+        description: "No product matches the scanned code",
+        variant: "destructive",
+      });
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deleteProduct) return;
     
@@ -149,10 +179,16 @@ const Products = () => {
           <h1 className="text-3xl font-bold text-foreground">Inventory</h1>
           <p className="text-muted-foreground">Manage your jewelry inventory</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Product
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowScanner(true)} variant="outline">
+            <ScanLine className="h-4 w-4 mr-2" />
+            Scan Product
+          </Button>
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       {/* Dashboard Cards */}
@@ -387,15 +423,50 @@ const Products = () => {
                 )}
               </div>
               
-              {(selectedProduct.barcode || selectedProduct.unique_number) && (
-                <div className="space-y-3 pt-4 border-t">
-                  <ProductTag product={selectedProduct} />
+              {selectedProduct.barcode && (
+                <div className="bg-muted p-3 rounded text-center">
+                  <p className="text-xs text-muted-foreground mb-2">Barcode</p>
+                  <div className="flex justify-center">
+                    <Barcode 
+                      value={selectedProduct.barcode} 
+                      height={60}
+                      width={2}
+                      fontSize={14}
+                    />
+                  </div>
                 </div>
               )}
+              
+              <div className="pt-4 border-t">
+                <ProductTag product={selectedProduct} />
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button onClick={() => handleEdit(selectedProduct)} className="flex-1">
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <Button onClick={() => setSelectedProduct(null)} variant="outline" className="flex-1">
+                  Close
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Scanner Dialog */}
+      <Dialog open={showScanner} onOpenChange={setShowScanner}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Scan Product</DialogTitle>
+            <DialogDescription>
+              Use your camera or enter barcode/product code manually
+            </DialogDescription>
+          </DialogHeader>
+          <ProductScanner onScan={handleScan} />
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteProduct} onOpenChange={() => setDeleteProduct(null)}>
