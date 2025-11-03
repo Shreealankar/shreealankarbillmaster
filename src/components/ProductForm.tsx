@@ -105,15 +105,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
     
     try {
       const productData = {
-        title: data.title || data.name_english,
+        title: data.title || data.name_english || '',
+        name_english: data.title || data.name_english || '',
         weight_grams: data.weight_grams,
         purity: data.purity,
         category: data.category,
-        type: data.type || data.metal_type,
+        type: data.metal_type || 'gold',
         description: data.description,
-        name_english: data.name_english,
         name_marathi: data.name_marathi,
-        metal_type: data.metal_type,
         making_charges_type: data.making_charges_type,
         making_charges_percentage: data.making_charges_percentage,
         making_charges_manual: data.making_charges_manual,

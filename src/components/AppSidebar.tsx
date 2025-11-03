@@ -26,7 +26,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const menuItems = [
   { title: 'dashboard', url: '/', icon: LayoutDashboard },
-  { title: 'products', url: '/products', icon: Package },
+  { title: 'inventory', url: '/products', icon: Package },
   { title: 'billing', url: '/billing', icon: Receipt },
   { title: 'customers', url: '/customers', icon: Users },
   { title: 'bookings', url: '/bookings', icon: Bell },

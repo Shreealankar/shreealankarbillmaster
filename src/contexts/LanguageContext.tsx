@@ -12,6 +12,7 @@ const translations = {
   en: {
     // Navigation
     dashboard: 'Dashboard',
+    inventory: 'Inventory',
     products: 'Products',
     billing: 'Billing',
     customers: 'Customers',
@@ -116,6 +117,7 @@ const translations = {
   mr: {
     // Navigation  
     dashboard: 'डॅशबोर्ड',
+    inventory: 'इन्व्हेंटरी',
     products: 'उत्पादने',
     billing: 'बिलिंग',
     customers: 'ग्राहक',

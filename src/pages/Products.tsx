@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye, Trash2 } from 'lucide-react';
+import { Plus, Search, Package, Coins, TrendingUp, AlertTriangle, Edit2, Eye, Trash2, Printer } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ProductForm } from "@/components/ProductForm";
+import { ProductTag } from "@/components/ProductTag";
 
 interface Product {
   id: string;
@@ -145,12 +146,12 @@ const Products = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{t('products')}</h1>
+          <h1 className="text-3xl font-bold text-foreground">Inventory</h1>
           <p className="text-muted-foreground">Manage your jewelry inventory</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          {t('add.product')}
+          Add Product
         </Button>
       </div>
 
@@ -374,24 +375,21 @@ const Products = () => {
                     ? `${selectedProduct.making_charges_percentage || 0}%` 
                     : `₹${selectedProduct.making_charges_manual || 0}`}
                 </div>
-              </div>
-              {(selectedProduct.barcode || selectedProduct.unique_number) && (
-                <div className="space-y-3">
-                  {selectedProduct.barcode && (
-                    <div className="text-center p-4 bg-muted rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Barcode</div>
-                      <div className="font-mono text-lg font-bold">{selectedProduct.barcode}</div>
-                    </div>
-                  )}
-                  {selectedProduct.unique_number && (
-                    <div className="text-center p-4 bg-primary/10 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Unique Number</div>
-                      <div className="font-mono text-lg font-bold text-primary">{selectedProduct.unique_number}</div>
-                    </div>
-                  )}
-                  <div className="text-center text-sm text-muted-foreground">
-                    {selectedProduct.title || selectedProduct.name_english}
+                {selectedProduct.barcode && (
+                  <div className="col-span-2">
+                    <span className="font-medium">Barcode:</span> {selectedProduct.barcode}
                   </div>
+                )}
+                {selectedProduct.unique_number && (
+                  <div className="col-span-2">
+                    <span className="font-medium">Product Code:</span> {selectedProduct.unique_number}
+                  </div>
+                )}
+              </div>
+              
+              {(selectedProduct.barcode || selectedProduct.unique_number) && (
+                <div className="space-y-3 pt-4 border-t">
+                  <ProductTag product={selectedProduct} />
                 </div>
               )}
             </div>
