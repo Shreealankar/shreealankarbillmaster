@@ -189,9 +189,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ open, onOpenChange, on
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="24_carat_gold">24 Carat Gold</SelectItem>
-                        <SelectItem value="22_carat_gold_normal">22 Carat Gold Normal</SelectItem>
-                        <SelectItem value="gold_jewelry">Gold Jewelry</SelectItem>
+                        <SelectItem value="24k_gold_995">24K Gold 995</SelectItem>
+                        <SelectItem value="24k_gold_normal">24K Gold Normal</SelectItem>
+                        <SelectItem value="gold_jewellery">Gold Jewellery</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
