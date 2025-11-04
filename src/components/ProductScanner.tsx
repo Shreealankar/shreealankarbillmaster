@@ -65,8 +65,21 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
         throw new Error('No camera devices found');
       }
 
-      // Use the first available camera (usually back camera on mobile)
-      const selectedDeviceId = videoDevices[0].deviceId;
+      // Prefer back camera on mobile devices
+      // Look for cameras with "back" or "rear" in their label
+      let selectedDeviceId = videoDevices[0].deviceId;
+      const backCamera = videoDevices.find(device => 
+        device.label.toLowerCase().includes('back') || 
+        device.label.toLowerCase().includes('rear') ||
+        device.label.toLowerCase().includes('environment')
+      );
+      
+      if (backCamera) {
+        selectedDeviceId = backCamera.deviceId;
+      } else if (videoDevices.length > 1) {
+        // If we can't find by label, use the last camera (often back camera on mobile)
+        selectedDeviceId = videoDevices[videoDevices.length - 1].deviceId;
+      }
 
       codeReaderRef.current.decodeFromVideoDevice(
         selectedDeviceId,
