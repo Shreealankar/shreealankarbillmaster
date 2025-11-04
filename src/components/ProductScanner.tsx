@@ -76,34 +76,40 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
 
   const startScanning = async () => {
     try {
-      setScanStatus('Initializing camera...');
+      setScanStatus('Starting camera...');
+      setIsScanning(true);
       
-      // Stop any existing scanner
+      // Stop any existing scanner first
       if (codeReaderRef.current) {
         codeReaderRef.current.reset();
+        codeReaderRef.current = null;
       }
       
       // Stop any existing stream
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
 
-      // Create new reader
+      // Wait a bit for cleanup
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Create new reader instance
       codeReaderRef.current = new BrowserMultiFormatReader();
       
-      // Get available video devices
+      // Get available video input devices
       const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
       
       if (videoInputDevices.length === 0) {
-        throw new Error('No camera found');
+        throw new Error('No camera found on this device');
       }
 
-      setScanStatus('Camera ready - Position barcode in view');
+      console.log('Available cameras:', videoInputDevices);
       
       // Select back camera (environment facing)
       let selectedDeviceId = videoInputDevices[0].deviceId;
       
-      // Try to find back camera
+      // Try to find back/rear camera
       const backCamera = videoInputDevices.find(device => 
         device.label.toLowerCase().includes('back') || 
         device.label.toLowerCase().includes('rear') ||
@@ -112,34 +118,42 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
       
       if (backCamera) {
         selectedDeviceId = backCamera.deviceId;
+        console.log('Using back camera:', backCamera.label);
       } else if (videoInputDevices.length > 1) {
         selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
+        console.log('Using camera:', videoInputDevices[videoInputDevices.length - 1].label);
       }
 
-      setIsScanning(true);
+      setScanStatus('Position barcode in frame');
 
-      // Start decoding from video device
-      await codeReaderRef.current.decodeFromVideoDevice(
+      // Start decoding with proper error handling
+      codeReaderRef.current.decodeFromVideoDevice(
         selectedDeviceId,
         videoRef.current!,
         (result, error) => {
           if (result) {
             const barcodeText = result.getText();
-            console.log('Barcode detected:', barcodeText);
-            setScanStatus(`Scanned: ${barcodeText}`);
+            console.log('✓ Barcode detected:', barcodeText);
+            setScanStatus(`✓ Scanned: ${barcodeText}`);
             playSuccessSound();
             onScan(barcodeText);
-            stopScanning();
+            // Small delay before stopping to show success message
+            setTimeout(() => stopScanning(), 500);
           }
+          // Don't log NotFoundException as it's normal when no barcode is in view
           if (error && !(error instanceof NotFoundException)) {
-            console.log('Scan error:', error);
+            console.warn('Scan error:', error.message);
           }
         }
-      );
+      ).catch((error) => {
+        console.error('Failed to start scanner:', error);
+        setScanStatus('Failed to start camera');
+        setIsScanning(false);
+      });
       
     } catch (error) {
-      console.error('Scanner error:', error);
-      setScanStatus('Camera error: ' + (error as Error).message);
+      console.error('Scanner initialization error:', error);
+      setScanStatus('Error: ' + (error as Error).message);
       setIsScanning(false);
       setHasPermission(false);
     }
@@ -164,20 +178,32 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
       <div className="text-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg">
         {isScanning ? (
           <div className="space-y-4">
-            <div className="relative">
+            <div className="relative bg-black rounded-lg overflow-hidden">
               <video 
                 ref={videoRef}
-                className="w-full max-w-sm mx-auto rounded-lg bg-black"
+                className="w-full max-w-md mx-auto aspect-video object-cover"
                 autoPlay
                 playsInline
                 muted
+                style={{ minHeight: '300px' }}
               />
-              <div className="absolute inset-0 border-4 border-primary/30 rounded-lg pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-32 border-2 border-primary"></div>
+              {/* Scanning frame overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-64 h-40 border-2 border-primary rounded-lg">
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
+                  <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
+                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                  {/* Scanning line animation */}
+                  <div className="absolute inset-x-0 top-1/2 h-0.5 bg-primary animate-pulse"></div>
+                </div>
               </div>
             </div>
             {scanStatus && (
-              <p className="text-sm font-medium text-primary">{scanStatus}</p>
+              <div className="bg-primary/10 p-3 rounded-lg">
+                <p className="text-sm font-medium text-primary text-center">{scanStatus}</p>
+              </div>
             )}
             <Button onClick={stopScanning} variant="destructive" className="w-full">
               <StopCircle className="h-4 w-4 mr-2" />
