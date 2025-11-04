@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { QrCode, Hash, Camera, StopCircle } from 'lucide-react';
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import { BrowserMultiFormatReader, NotFoundException, BarcodeFormat, DecodeHintType } from '@zxing/library';
 
 interface ProductScannerProps {
   onScan: (result: string) => void;
@@ -49,10 +49,45 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
     }
   };
 
+  const playSuccessSound = () => {
+    // Create a short beep sound
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800; // Frequency in Hz
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+  };
+
   const startScanning = async () => {
     try {
       if (!codeReaderRef.current) {
-        codeReaderRef.current = new BrowserMultiFormatReader();
+        const hints = new Map();
+        const formats = [
+          BarcodeFormat.CODE_128,
+          BarcodeFormat.CODE_39,
+          BarcodeFormat.EAN_13,
+          BarcodeFormat.EAN_8,
+          BarcodeFormat.UPC_A,
+          BarcodeFormat.UPC_E,
+          BarcodeFormat.QR_CODE,
+          BarcodeFormat.DATA_MATRIX,
+          BarcodeFormat.ITF,
+          BarcodeFormat.CODABAR,
+        ];
+        hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+        hints.set(DecodeHintType.TRY_HARDER, true);
+        
+        codeReaderRef.current = new BrowserMultiFormatReader(hints);
       }
 
       setIsScanning(true);
@@ -66,7 +101,6 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
       }
 
       // Prefer back camera on mobile devices
-      // Look for cameras with "back" or "rear" in their label
       let selectedDeviceId = videoDevices[0].deviceId;
       const backCamera = videoDevices.find(device => 
         device.label.toLowerCase().includes('back') || 
@@ -81,11 +115,24 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
         selectedDeviceId = videoDevices[videoDevices.length - 1].deviceId;
       }
 
-      codeReaderRef.current.decodeFromVideoDevice(
-        selectedDeviceId,
+      // Configure video constraints for better barcode scanning
+      const constraints = {
+        video: {
+          deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          focusMode: { ideal: 'continuous' },
+          zoom: { ideal: 1.0 }
+        }
+      };
+
+      codeReaderRef.current.decodeFromConstraints(
+        constraints,
         videoRef.current!,
         (result, error) => {
           if (result) {
+            playSuccessSound();
             onScan(result.getText());
             stopScanning();
           }
