@@ -44,8 +44,9 @@ export const RateManager: React.FC = () => {
       const gold = data?.find(r => r.metal_type === 'gold');
       const silver = data?.find(r => r.metal_type === 'silver');
       
-      setGoldRate(gold?.rate_per_gram?.toString() || '');
-      setSilverRate(silver?.rate_per_gram?.toString() || '');
+      // Convert from per gram to per 10 grams for display
+      setGoldRate(gold?.rate_per_gram ? (gold.rate_per_gram * 10).toString() : '');
+      setSilverRate(silver?.rate_per_gram ? (silver.rate_per_gram * 10).toString() : '');
     } catch (error) {
       console.error('Error fetching rates:', error);
     }
@@ -103,12 +104,15 @@ export const RateManager: React.FC = () => {
         .eq('metal_type', metalType)
         .maybeSingle();
 
+      // Convert from per 10 grams to per gram for storage
+      const ratePerGram = parseFloat(rate) / 10;
+
       if (existingRate) {
         // Update existing rate
         const { error } = await supabase
           .from('rates')
           .update({
-            rate_per_gram: parseFloat(rate),
+            rate_per_gram: ratePerGram,
             updated_at: new Date().toISOString(),
           })
           .eq('metal_type', metalType);
@@ -120,7 +124,7 @@ export const RateManager: React.FC = () => {
           .from('rates')
           .insert({
             metal_type: metalType,
-            rate_per_gram: parseFloat(rate),
+            rate_per_gram: ratePerGram,
           });
 
         if (error) throw error;
@@ -204,14 +208,14 @@ export const RateManager: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="goldRate">Rate per Gram (₹)</Label>
+              <Label htmlFor="goldRate">Rate per 10 Grams (₹)</Label>
               <Input
                 id="goldRate"
                 type="number"
                 step="0.01"
                 value={goldRate}
                 onChange={(e) => setGoldRate(e.target.value)}
-                placeholder="Enter gold rate"
+                placeholder="Enter gold rate for 10g"
                 disabled={goldRateObj?.is_locked}
               />
             </div>
@@ -249,14 +253,14 @@ export const RateManager: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="silverRate">Rate per Gram (₹)</Label>
+              <Label htmlFor="silverRate">Rate per 10 Grams (₹)</Label>
               <Input
                 id="silverRate"
                 type="number"
                 step="0.01"
                 value={silverRate}
                 onChange={(e) => setSilverRate(e.target.value)}
-                placeholder="Enter silver rate"
+                placeholder="Enter silver rate for 10g"
                 disabled={silverRateObj?.is_locked}
               />
             </div>
