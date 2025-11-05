@@ -163,7 +163,7 @@ export default function Billing() {
           setNewItem(prev => ({
             ...prev,
             weight_grams: data.goldWeight,
-            rate_per_gram: goldRate > 0 ? goldRate / 10 : 0
+            rate_per_gram: goldRate
           }));
         }
         
@@ -187,16 +187,15 @@ export default function Billing() {
     if (product) {
       // Auto-populate item data from scanned product
       const currentRate = getCurrentRate(product.type || 'gold');
-      const ratePerGram = currentRate > 0 ? currentRate / 10 : 0;
       
       setNewItem({
         item_name: product.name_english || product.title,
         metal_type: product.type || 'gold',
         purity: product.purity || '22k',
         weight_grams: product.weight_grams || 0,
-        rate_per_gram: ratePerGram,
+        rate_per_gram: currentRate,
         making_charges: product.making_charges_type === 'percentage' 
-          ? ((product.weight_grams || 0) * ratePerGram * (product.making_charges_percentage || 0)) / 100
+          ? ((product.weight_grams || 0) * currentRate * (product.making_charges_percentage || 0)) / 100
           : product.making_charges_manual || 0,
         making_charges_type: product.making_charges_type || 'manual',
         making_charges_percentage: product.making_charges_percentage || 0,
@@ -582,15 +581,14 @@ export default function Billing() {
   const autoFillRate = () => {
     const currentRate = getCurrentRate(newItem.metal_type);
     if (currentRate > 0) {
-      // Convert from 10 gram rate to 1 gram rate
-      const ratePerGram = currentRate / 10;
+      // Rate is already per gram, no need to divide
       setNewItem(prev => ({
         ...prev,
-        rate_per_gram: ratePerGram
+        rate_per_gram: currentRate
       }));
       toast({
         title: "Rate Auto-Filled",
-        description: `Rate set to ₹${ratePerGram}/gram for ${newItem.metal_type}`,
+        description: `Rate set to ₹${currentRate}/gram for ${newItem.metal_type}`,
       });
     } else {
       toast({

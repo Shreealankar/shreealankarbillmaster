@@ -266,25 +266,36 @@ const Products = () => {
 
       {/* Stock Notifications */}
       {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
-        <Card className="border-2 border-red-300 bg-red-50/30">
-          <CardHeader>
-            <CardTitle className="text-red-800 flex items-center gap-2">
+        <Card className="border-l-4 border-l-destructive bg-destructive/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               Stock Notifications
             </CardTitle>
+            <CardDescription>
+              Items requiring immediate attention
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="grid gap-3 max-h-64 overflow-y-auto">
               {outOfStockProducts.map(product => (
-                <div key={product.id} className="flex justify-between items-center p-3 bg-red-100 border border-red-300 rounded-lg">
-                  <span className="font-medium text-red-900">{product.name_english}</span>
-                  <Badge variant="destructive">Out of Stock</Badge>
+                <div key={product.id} className="flex justify-between items-center gap-3 p-3 bg-background rounded-lg border border-destructive/20 shadow-sm">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{product.name_english || product.title}</p>
+                    <p className="text-xs text-muted-foreground">{product.metal_type} • {product.purity}</p>
+                  </div>
+                  <Badge variant="destructive" className="shrink-0">Out of Stock</Badge>
                 </div>
               ))}
-              {lowStockProducts.filter(p => p.stock_quantity > 0).map(product => (
-                <div key={product.id} className="flex justify-between items-center p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
-                  <span className="font-medium text-yellow-900">{product.name_english}</span>
-                  <Badge className="bg-yellow-600 hover:bg-yellow-700">Low Stock: {product.stock_quantity}</Badge>
+              {lowStockProducts.filter(p => (p.stock_quantity || 0) > 0).map(product => (
+                <div key={product.id} className="flex justify-between items-center gap-3 p-3 bg-background rounded-lg border border-yellow-500/20 shadow-sm">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{product.name_english || product.title}</p>
+                    <p className="text-xs text-muted-foreground">{product.metal_type} • {product.purity}</p>
+                  </div>
+                  <Badge className="bg-yellow-600 hover:bg-yellow-700 shrink-0">
+                    Low: {product.stock_quantity}
+                  </Badge>
                 </div>
               ))}
             </div>
