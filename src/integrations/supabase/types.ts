@@ -686,27 +686,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -717,21 +696,12 @@ export type Database = {
       generate_bill_number: { Args: never; Returns: string }
       generate_product_barcode: { Args: never; Returns: string }
       generate_product_unique_number: { Args: never; Returns: string }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_authenticated_staff: { Args: never; Returns: boolean }
       update_rate_lock_status: {
         Args: { p_is_locked: boolean; p_metal_type: string }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "admin" | "staff" | "customer"
       product_category:
         | "necklace"
         | "ring"
@@ -866,7 +836,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff", "customer"],
       product_category: [
         "necklace",
         "ring",

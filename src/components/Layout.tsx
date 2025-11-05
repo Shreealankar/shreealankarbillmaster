@@ -1,37 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out",
-      });
-      navigate('/auth');
-    }
-  };
-
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-dark">
@@ -54,15 +29,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="mr-4"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
           </header>
           <div className="p-6 h-[calc(100vh-4rem)] overflow-auto">
             {children}
