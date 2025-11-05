@@ -248,13 +248,13 @@ const Products = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-red-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Stock Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-red-600">
               {lowStockProducts.length}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -266,9 +266,9 @@ const Products = () => {
 
       {/* Stock Notifications */}
       {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
-        <Card className="border-orange-200 bg-orange-50/50">
+        <Card className="border-2 border-red-300 bg-red-50/30">
           <CardHeader>
-            <CardTitle className="text-orange-800 flex items-center gap-2">
+            <CardTitle className="text-red-800 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
               Stock Notifications
             </CardTitle>
@@ -276,15 +276,15 @@ const Products = () => {
           <CardContent>
             <div className="space-y-2">
               {outOfStockProducts.map(product => (
-                <div key={product.id} className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
-                  <span className="font-medium text-red-800">{product.name_english}</span>
+                <div key={product.id} className="flex justify-between items-center p-3 bg-red-100 border border-red-300 rounded-lg">
+                  <span className="font-medium text-red-900">{product.name_english}</span>
                   <Badge variant="destructive">Out of Stock</Badge>
                 </div>
               ))}
               {lowStockProducts.filter(p => p.stock_quantity > 0).map(product => (
-                <div key={product.id} className="flex justify-between items-center p-2 bg-orange-50 rounded-lg">
-                  <span className="font-medium text-orange-800">{product.name_english}</span>
-                  <Badge variant="secondary">Low Stock: {product.stock_quantity}</Badge>
+                <div key={product.id} className="flex justify-between items-center p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
+                  <span className="font-medium text-yellow-900">{product.name_english}</span>
+                  <Badge className="bg-yellow-600 hover:bg-yellow-700">Low Stock: {product.stock_quantity}</Badge>
                 </div>
               ))}
             </div>
