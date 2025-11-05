@@ -335,6 +335,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
             <SelectContent>
               {metalType === 'gold' ? (
                 <>
+                  <SelectItem value="24K Gold Jewellery">24K Gold Jewellery</SelectItem>
+                  <SelectItem value="24 Gold">24 Gold</SelectItem>
+                  <SelectItem value="24 Gold 995">24 Gold 995</SelectItem>
                   <SelectItem value="22K">22 Karat</SelectItem>
                   <SelectItem value="18K">18 Karat</SelectItem>
                   <SelectItem value="14K">14 Karat</SelectItem>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ProductForm } from "@/components/ProductForm";
 import { ProductTag } from "@/components/ProductTag";
 import { ProductScanner } from "@/components/ProductScanner";
+import { RateManager } from "@/components/RateManager";
 
 interface Product {
   id: string;
@@ -49,6 +51,7 @@ const Products = () => {
   const [showForm, setShowForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
   // Dashboard stats
   const totalProducts = products.length;
@@ -171,13 +174,21 @@ const Products = () => {
     );
   }
 
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProducts(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Inventory</h1>
-          <p className="text-muted-foreground">Manage your jewelry inventory</p>
+          <h1 className="text-3xl font-bold text-foreground">Inventory & Rates</h1>
+          <p className="text-muted-foreground">Manage your jewelry inventory and metal rates</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => setShowScanner(true)} variant="outline">
@@ -190,6 +201,14 @@ const Products = () => {
           </Button>
         </div>
       </div>
+
+      <Tabs defaultValue="inventory" className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="rates">Update Rates</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="inventory" className="space-y-6">
 
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -289,10 +308,25 @@ const Products = () => {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Products</CardTitle>
-          <CardDescription>
-            Manage your jewelry products and inventory
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Products</CardTitle>
+              <CardDescription>
+                Manage your jewelry products and inventory
+              </CardDescription>
+            </div>
+            {selectedProducts.length > 0 && (
+              <Button
+                onClick={() => {
+                  const selected = products.filter(p => selectedProducts.includes(p.id));
+                  setSelectedProduct(selected[0]);
+                }}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Bulk Print Tags ({selectedProducts.length})
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -302,6 +336,12 @@ const Products = () => {
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-4 flex-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.includes(product.id)}
+                    onChange={() => toggleProductSelection(product.id)}
+                    className="h-4 w-4 cursor-pointer"
+                  />
                   {product.image_url && (
                     <img 
                       src={product.image_url} 
@@ -456,7 +496,13 @@ const Products = () => {
               )}
               
               <div className="pt-4 border-t">
-                <ProductTag product={selectedProduct} />
+                <ProductTag 
+                  product={selectedProduct} 
+                  products={selectedProducts.length > 0 
+                    ? products.filter(p => selectedProducts.includes(p.id))
+                    : undefined
+                  }
+                />
               </div>
               
               <div className="flex gap-2 pt-4">
@@ -503,6 +549,13 @@ const Products = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+        </TabsContent>
+
+        <TabsContent value="rates">
+          <RateManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -611,6 +611,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_history: {
+        Row: {
+          created_at: string
+          id: string
+          metal_type: string
+          rate_per_gram: number
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metal_type: string
+          rate_per_gram: number
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metal_type?: string
+          rate_per_gram?: number
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rates: {
         Row: {
           id: string

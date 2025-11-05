@@ -14,15 +14,26 @@ interface ProductTagProps {
     barcode?: string;
     unique_number?: string;
   };
+  products?: Array<{
+    title?: string;
+    name_english?: string;
+    name_marathi?: string;
+    weight_grams: number;
+    purity: string;
+    barcode?: string;
+    unique_number?: string;
+  }>;
 }
 
-export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
+export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => {
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => {
+  const handlePrint = (isBulk = false) => {
     const printContent = printRef.current;
     if (!printContent) return;
+    
+    const itemsToPrint = isBulk && products ? products : [product];
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -34,9 +45,38 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
       return;
     }
 
-    // Get the SVG barcode element and convert to string
-    const barcodeElement = printContent.querySelector('svg');
-    const barcodeHTML = barcodeElement ? barcodeElement.outerHTML : '';
+    // Generate HTML for all tags
+    const tagsHTML = itemsToPrint.map((item, index) => {
+      const itemRef = document.getElementById(`barcode-${index}`);
+      const barcodeElement = itemRef?.querySelector('svg');
+      const barcodeHTML = barcodeElement ? barcodeElement.outerHTML : '';
+      
+      return `
+        <div class="tag-container" style="${index > 0 ? 'page-break-before: always;' : ''}">
+          <div>
+            <div class="product-name">
+              ${item.name_english || item.title}
+            </div>
+            ${item.name_marathi ? `<div class="product-name-mr">${item.name_marathi}</div>` : ''}
+            <div class="product-info">
+              <div class="info-row">
+                <span class="label">Weight:</span>
+                <span>${item.weight_grams}g</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Purity:</span>
+                <span>${item.purity}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="barcode-section">
+            ${barcodeHTML}
+            ${item.unique_number ? `<div class="code">${item.unique_number}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -45,88 +85,68 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
           <title>Product Tag - ${product.name_english || product.title}</title>
           <style>
             @page {
-              size: 2.5in 1.5in;
+              size: 5cm 3cm;
               margin: 0;
             }
             body {
               margin: 0;
-              padding: 8px;
+              padding: 0;
               font-family: Arial, sans-serif;
-              font-size: 10px;
+              font-size: 8px;
             }
             .tag-container {
-              width: 100%;
-              height: 100%;
-              border: 2px solid #000;
-              padding: 8px;
+              width: 5cm;
+              height: 3cm;
+              border: 1px solid #000;
+              padding: 4px;
               box-sizing: border-box;
               display: flex;
               flex-direction: column;
               justify-content: space-between;
             }
             .product-name {
-              font-size: 12px;
+              font-size: 9px;
               font-weight: bold;
-              margin-bottom: 4px;
+              margin-bottom: 2px;
               text-align: center;
             }
             .product-name-mr {
-              font-size: 11px;
+              font-size: 8px;
               text-align: center;
-              margin-bottom: 6px;
+              margin-bottom: 3px;
             }
             .product-info {
               display: flex;
               flex-direction: column;
-              gap: 3px;
+              gap: 2px;
             }
             .info-row {
               display: flex;
               justify-content: space-between;
+              font-size: 7px;
             }
             .label {
               font-weight: bold;
             }
             .barcode-section {
               text-align: center;
-              margin-top: 4px;
-              padding-top: 4px;
+              margin-top: 2px;
+              padding-top: 2px;
               border-top: 1px solid #ccc;
             }
-            .barcode-svg {
-              margin: 4px auto;
+            .barcode-svg svg {
+              max-width: 100%;
+              height: auto;
             }
             .code {
-              font-size: 9px;
+              font-size: 6px;
               color: #666;
-              margin-top: 2px;
+              margin-top: 1px;
             }
           </style>
         </head>
         <body>
-          <div class="tag-container">
-            <div>
-              <div class="product-name">
-                ${product.name_english || product.title}
-              </div>
-              ${product.name_marathi ? `<div class="product-name-mr">${product.name_marathi}</div>` : ''}
-              <div class="product-info">
-                <div class="info-row">
-                  <span class="label">Weight:</span>
-                  <span>${product.weight_grams}g</span>
-                </div>
-                <div class="info-row">
-                  <span class="label">Purity:</span>
-                  <span>${product.purity}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="barcode-section">
-              ${barcodeHTML}
-              ${product.unique_number ? `<div class="code">${product.unique_number}</div>` : ''}
-            </div>
-          </div>
+          ${tagsHTML}
         </body>
       </html>
     `);
@@ -140,10 +160,18 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
 
   return (
     <div>
-      <Button onClick={handlePrint} className="w-full mb-4">
-        <Printer className="h-4 w-4 mr-2" />
-        Print Tag
-      </Button>
+      <div className="flex gap-2 mb-4">
+        <Button onClick={() => handlePrint(false)} className="flex-1">
+          <Printer className="h-4 w-4 mr-2" />
+          Print Tag
+        </Button>
+        {products && products.length > 1 && (
+          <Button onClick={() => handlePrint(true)} variant="secondary" className="flex-1">
+            <Printer className="h-4 w-4 mr-2" />
+            Bulk Print ({products.length})
+          </Button>
+        )}
+      </div>
       
       {/* Visual preview */}
       <div className="border-2 border-border rounded-lg p-4 bg-background text-center">
@@ -179,18 +207,22 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product }) => {
         </div>
       </div>
       
-      {/* Hidden print content with barcode */}
+      {/* Hidden print content with barcodes */}
       <div style={{ display: 'none' }}>
         <div ref={printRef}>
-          {product.barcode && (
-            <Barcode 
-              value={product.barcode} 
-              height={40}
-              width={1.5}
-              fontSize={10}
-              margin={0}
-            />
-          )}
+          {(products || [product]).map((item, index) => (
+            <div key={index} id={`barcode-${index}`}>
+              {item.barcode && (
+                <Barcode 
+                  value={item.barcode} 
+                  height={30}
+                  width={1}
+                  fontSize={8}
+                  margin={0}
+                />
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
