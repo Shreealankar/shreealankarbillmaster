@@ -96,17 +96,35 @@ export const RateManager: React.FC = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      // First check if rate exists
+      const { data: existingRate } = await supabase
         .from('rates')
-        .upsert({
-          metal_type: metalType,
-          rate_per_gram: parseFloat(rate),
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'metal_type'
-        });
+        .select('*')
+        .eq('metal_type', metalType)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existingRate) {
+        // Update existing rate
+        const { error } = await supabase
+          .from('rates')
+          .update({
+            rate_per_gram: parseFloat(rate),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('metal_type', metalType);
+
+        if (error) throw error;
+      } else {
+        // Insert new rate
+        const { error } = await supabase
+          .from('rates')
+          .insert({
+            metal_type: metalType,
+            rate_per_gram: parseFloat(rate),
+          });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Rate Updated",
@@ -115,11 +133,11 @@ export const RateManager: React.FC = () => {
 
       fetchRates();
       fetchHistory();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating rate:', error);
       toast({
         title: "Error",
-        description: "Failed to update rate",
+        description: error.message || "Failed to update rate",
         variant: "destructive",
       });
     } finally {
