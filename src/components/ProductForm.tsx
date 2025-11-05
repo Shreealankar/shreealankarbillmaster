@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Upload, X } from "lucide-react";
 
 interface ProductFormData {
   title: string;
@@ -40,6 +41,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<{ barcode: string; uniqueNumber: string } | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     defaultValues: product ? {
@@ -100,10 +104,74 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
     }
   }, [product]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Image must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const uploadImage = async () => {
+    if (!imageFile) return null;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const onSubmit = async (data: ProductFormData) => {
     setLoading(true);
     
     try {
+      let imageUrl = imagePreview;
+      
+      // Upload new image if selected
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       const productData = {
         title: data.title || data.name_english || '',
         name_english: data.title || data.name_english || '',
@@ -123,6 +191,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         minimum_stock: data.minimum_stock,
         barcode: product ? product.barcode : generatedCodes?.barcode,
         unique_number: product ? product.unique_number : generatedCodes?.uniqueNumber,
+        image_url: imageUrl,
       };
 
       let result;
@@ -159,6 +228,48 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Product Image Upload */}
+      <div className="space-y-2">
+        <Label>Product Image</Label>
+        {imagePreview ? (
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden border">
+            <img 
+              src={imagePreview} 
+              alt="Product preview" 
+              className="w-full h-full object-cover"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={removeImage}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-upload"
+            />
+            <label htmlFor="image-upload" className="cursor-pointer">
+              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">
+                Click to upload product image
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Max file size: 5MB
+              </p>
+            </label>
+          </div>
+        )}
+      </div>
+
       {/* Product Names */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -383,8 +494,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
+        <Button type="submit" disabled={loading || uploadingImage}>
+          {loading || uploadingImage ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
         </Button>
       </div>
     </form>

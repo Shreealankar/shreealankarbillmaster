@@ -301,14 +301,22 @@ const Products = () => {
                 key={product.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div>
-                      <h3 className="font-semibold">{product.title || product.name_english}</h3>
-                      {product.name_marathi && (
-                        <p className="text-sm text-muted-foreground">{product.name_marathi}</p>
-                      )}
-                    </div>
+                <div className="flex items-center gap-4 flex-1">
+                  {product.image_url && (
+                    <img 
+                      src={product.image_url} 
+                      alt={product.title || product.name_english || 'Product'} 
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div>
+                        <h3 className="font-semibold">{product.title || product.name_english}</h3>
+                        {product.name_marathi && (
+                          <p className="text-sm text-muted-foreground">{product.name_marathi}</p>
+                        )}
+                      </div>
                     <Badge variant={product.metal_type === 'gold' ? 'default' : 'secondary'}>
                       {product.metal_type?.toUpperCase() || 'N/A'}
                     </Badge>
@@ -318,9 +326,10 @@ const Products = () => {
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>Weight: {product.weight_grams}g × {product.pieces || 1} pcs</span>
-                    <span>Stock: {product.stock_quantity || 0}</span>
-                    {product.unique_number && <span>#{product.unique_number}</span>}
-                    {product.barcode && <span>Barcode: {product.barcode}</span>}
+                      <span>Stock: {product.stock_quantity || 0}</span>
+                      {product.unique_number && <span>#{product.unique_number}</span>}
+                      {product.barcode && <span>Barcode: {product.barcode}</span>}
+                    </div>
                   </div>
                 </div>
         <div className="flex gap-2">
@@ -389,6 +398,15 @@ const Products = () => {
               )}
             </DialogHeader>
             <div className="space-y-4">
+              {selectedProduct.image_url && (
+                <div className="w-full aspect-video rounded-lg overflow-hidden">
+                  <img 
+                    src={selectedProduct.image_url} 
+                    alt={selectedProduct.title || selectedProduct.name_english || 'Product'} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium">Weight:</span> {selectedProduct.weight_grams}g
