@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Camera, Keyboard } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Camera, Keyboard, StopCircle } from "lucide-react";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { useToast } from "@/hooks/use-toast";
 
 interface Rate {
@@ -38,12 +38,16 @@ const PriceCalculator = () => {
   const [rates, setRates] = useState<Rate[]>([]);
   const [manualInput, setManualInput] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [scanStatus, setScanStatus] = useState('');
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const scannerIdRef = useRef(`scanner-${Date.now()}`);
 
   useEffect(() => {
     fetchRates();
+    checkCameraPermission();
+    
     const subscription = supabase
       .channel('rates_changes')
       .on('postgres_changes', 
@@ -54,11 +58,22 @@ const PriceCalculator = () => {
 
     return () => {
       subscription.unsubscribe();
-      if (html5QrCodeRef.current) {
-        stopScanning();
-      }
+      stopScanning();
     };
   }, []);
+
+  const checkCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
+    } catch (error) {
+      console.error('Camera permission error:', error);
+      setHasPermission(false);
+    }
+  };
 
   const fetchRates = async () => {
     const { data } = await supabase.from('rates').select('*');
@@ -98,46 +113,109 @@ const PriceCalculator = () => {
     });
   };
 
+  const playSuccessSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.15);
+    } catch (error) {
+      console.log('Audio not supported');
+    }
+  };
+
   const startScanning = async () => {
     try {
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new Html5Qrcode(scannerIdRef.current);
+      setScanStatus(language === 'en' ? 'Initializing camera...' : 'कॅमेरा सुरू करत आहे...');
+      setIsScanning(true);
+      
+      // Stop any existing scanner first
+      if (html5QrCodeRef.current) {
+        try {
+          await html5QrCodeRef.current.stop();
+        } catch (e) {
+          console.log('No active scanner to stop');
+        }
       }
 
-      await html5QrCodeRef.current.start(
+      // Wait a bit for cleanup
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Create new scanner instance
+      const html5QrCode = new Html5Qrcode(scannerIdRef.current);
+      html5QrCodeRef.current = html5QrCode;
+
+      // Configure supported barcode formats
+      const config = {
+        fps: 10,
+        qrbox: { width: 300, height: 200 },
+        aspectRatio: 1.7777778,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.QR_CODE,
+        ],
+      };
+
+      setScanStatus(language === 'en' ? 'Position barcode in the scanning area' : 'बारकोड स्कॅनिंग एरियामध्ये ठेवा');
+
+      // Start scanning with back camera
+      await html5QrCode.start(
         { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
+        config,
         async (decodedText) => {
+          console.log('✓ Barcode detected:', decodedText);
+          setScanStatus(`✓ ${language === 'en' ? 'Scanned' : 'स्कॅन केले'}: ${decodedText}`);
+          playSuccessSound();
           await fetchProductDetails(decodedText);
-          stopScanning();
+          // Small delay before stopping to show success message
+          setTimeout(() => stopScanning(), 500);
         },
-        undefined
+        (errorMessage) => {
+          // Ignore common scanning errors
+        }
       );
       
-      setIsScanning(true);
-    } catch (err) {
-      console.error("Error starting scanner:", err);
+    } catch (error) {
+      console.error('Scanner initialization error:', error);
+      setScanStatus('Error: ' + (error as Error).message);
+      setIsScanning(false);
+      setHasPermission(false);
       toast({
-        title: "Scanner Error",
-        description: "Could not start camera scanner",
+        title: language === 'en' ? "Scanner Error" : "स्कॅनर त्रुटी",
+        description: (error as Error).message,
         variant: "destructive"
       });
     }
   };
 
   const stopScanning = async () => {
-    if (html5QrCodeRef.current && isScanning) {
+    if (html5QrCodeRef.current) {
       try {
         await html5QrCodeRef.current.stop();
-        html5QrCodeRef.current.clear();
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
+        await html5QrCodeRef.current.clear();
+      } catch (e) {
+        console.log('Scanner cleanup error:', e);
       }
+      html5QrCodeRef.current = null;
     }
     setIsScanning(false);
+    setScanStatus('');
   };
 
   const calculateAmount = () => {
@@ -227,15 +305,42 @@ const PriceCalculator = () => {
               </h3>
               {isScanning ? (
                 <div className="space-y-4">
-                  <div id={scannerIdRef.current} className="border-2 border-primary rounded-lg overflow-hidden" />
+                  <div 
+                    id={scannerIdRef.current}
+                    className="w-full max-w-md mx-auto rounded-lg overflow-hidden"
+                  />
+                  {scanStatus && (
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <p className="text-sm font-medium text-primary text-center">{scanStatus}</p>
+                    </div>
+                  )}
                   <Button onClick={stopScanning} variant="destructive" className="w-full">
+                    <StopCircle className="h-4 w-4 mr-2" />
                     {t('stop.scanning')}
                   </Button>
                 </div>
               ) : (
-                <Button onClick={startScanning} className="w-full">
-                  {t('start.scanning')}
-                </Button>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground text-center">
+                    {language === 'en' ? 'Point camera at barcode to scan automatically' : 'बारकोड स्कॅन करण्यासाठी कॅमेरा लावा'}
+                  </p>
+                  {hasPermission === false ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-destructive text-center">
+                        {language === 'en' ? 'Camera permission denied or not available' : 'कॅमेरा परवानगी नाकारली किंवा उपलब्ध नाही'}
+                      </p>
+                      <Button onClick={checkCameraPermission} variant="outline" className="w-full">
+                        <Camera className="h-4 w-4 mr-2" />
+                        {language === 'en' ? 'Request Camera Permission' : 'कॅमेरा परवानगी विचारा'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button onClick={startScanning} className="w-full">
+                      <Camera className="h-4 w-4 mr-2" />
+                      {t('start.scanning')}
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
 
