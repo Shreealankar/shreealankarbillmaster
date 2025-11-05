@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { QrCode, Hash, Camera, StopCircle } from 'lucide-react';
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 interface ProductScannerProps {
   onScan: (result: string) => void;
@@ -15,9 +15,8 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanStatus, setScanStatus] = useState('');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const scannerIdRef = useRef('barcode-scanner-' + Date.now());
 
   const handleManualSubmit = () => {
     if (manualInput.trim()) {
@@ -76,80 +75,59 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
 
   const startScanning = async () => {
     try {
-      setScanStatus('Starting camera...');
+      setScanStatus('Initializing camera...');
       setIsScanning(true);
       
       // Stop any existing scanner first
-      if (codeReaderRef.current) {
-        codeReaderRef.current.reset();
-        codeReaderRef.current = null;
-      }
-      
-      // Stop any existing stream
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
+      if (html5QrCodeRef.current) {
+        try {
+          await html5QrCodeRef.current.stop();
+        } catch (e) {
+          console.log('No active scanner to stop');
+        }
       }
 
       // Wait a bit for cleanup
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Create new reader instance
-      codeReaderRef.current = new BrowserMultiFormatReader();
-      
-      // Get available video input devices
-      const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
-      
-      if (videoInputDevices.length === 0) {
-        throw new Error('No camera found on this device');
-      }
+      // Create new scanner instance
+      const html5QrCode = new Html5Qrcode(scannerIdRef.current);
+      html5QrCodeRef.current = html5QrCode;
 
-      console.log('Available cameras:', videoInputDevices);
-      
-      // Select back camera (environment facing)
-      let selectedDeviceId = videoInputDevices[0].deviceId;
-      
-      // Try to find back/rear camera
-      const backCamera = videoInputDevices.find(device => 
-        device.label.toLowerCase().includes('back') || 
-        device.label.toLowerCase().includes('rear') ||
-        device.label.toLowerCase().includes('environment')
-      );
-      
-      if (backCamera) {
-        selectedDeviceId = backCamera.deviceId;
-        console.log('Using back camera:', backCamera.label);
-      } else if (videoInputDevices.length > 1) {
-        selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
-        console.log('Using camera:', videoInputDevices[videoInputDevices.length - 1].label);
-      }
+      // Configure supported barcode formats
+      const config = {
+        fps: 10,
+        qrbox: { width: 300, height: 200 },
+        aspectRatio: 1.7777778,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.QR_CODE,
+        ],
+      };
 
-      setScanStatus('Position barcode in frame');
+      setScanStatus('Position barcode in the scanning area');
 
-      // Start decoding with proper error handling
-      codeReaderRef.current.decodeFromVideoDevice(
-        selectedDeviceId,
-        videoRef.current!,
-        (result, error) => {
-          if (result) {
-            const barcodeText = result.getText();
-            console.log('✓ Barcode detected:', barcodeText);
-            setScanStatus(`✓ Scanned: ${barcodeText}`);
-            playSuccessSound();
-            onScan(barcodeText);
-            // Small delay before stopping to show success message
-            setTimeout(() => stopScanning(), 500);
-          }
-          // Don't log NotFoundException as it's normal when no barcode is in view
-          if (error && !(error instanceof NotFoundException)) {
-            console.warn('Scan error:', error.message);
-          }
+      // Start scanning with back camera
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          console.log('✓ Barcode detected:', decodedText);
+          setScanStatus(`✓ Scanned: ${decodedText}`);
+          playSuccessSound();
+          onScan(decodedText);
+          // Small delay before stopping to show success message
+          setTimeout(() => stopScanning(), 500);
+        },
+        (errorMessage) => {
+          // Ignore common scanning errors
         }
-      ).catch((error) => {
-        console.error('Failed to start scanner:', error);
-        setScanStatus('Failed to start camera');
-        setIsScanning(false);
-      });
+      );
       
     } catch (error) {
       console.error('Scanner initialization error:', error);
@@ -159,14 +137,15 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
     }
   };
 
-  const stopScanning = () => {
-    if (codeReaderRef.current) {
-      codeReaderRef.current.reset();
-      codeReaderRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
+  const stopScanning = async () => {
+    if (html5QrCodeRef.current) {
+      try {
+        await html5QrCodeRef.current.stop();
+        await html5QrCodeRef.current.clear();
+      } catch (e) {
+        console.log('Scanner cleanup error:', e);
+      }
+      html5QrCodeRef.current = null;
     }
     setIsScanning(false);
     setScanStatus('');
@@ -178,28 +157,10 @@ export const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
       <div className="text-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg">
         {isScanning ? (
           <div className="space-y-4">
-            <div className="relative bg-black rounded-lg overflow-hidden">
-              <video 
-                ref={videoRef}
-                className="w-full max-w-md mx-auto aspect-video object-cover"
-                autoPlay
-                playsInline
-                muted
-                style={{ minHeight: '300px' }}
-              />
-              {/* Scanning frame overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="relative w-64 h-40 border-2 border-primary rounded-lg">
-                  {/* Corner accents */}
-                  <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
-                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-lg"></div>
-                  {/* Scanning line animation */}
-                  <div className="absolute inset-x-0 top-1/2 h-0.5 bg-primary animate-pulse"></div>
-                </div>
-              </div>
-            </div>
+            <div 
+              id={scannerIdRef.current}
+              className="w-full max-w-md mx-auto rounded-lg overflow-hidden"
+            />
             {scanStatus && (
               <div className="bg-primary/10 p-3 rounded-lg">
                 <p className="text-sm font-medium text-primary text-center">{scanStatus}</p>
