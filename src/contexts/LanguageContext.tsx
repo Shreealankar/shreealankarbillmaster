@@ -19,11 +19,24 @@ const translations = {
     bookings: 'Bookings',
     borrowings: 'Borrowings',
     messages: 'Messages',
+    priceCalculator: 'Price Calculator',
     language: 'Language',
     
     // Products
     'add.product': 'Add Product',
     'scan': 'Scan',
+    'scan.product': 'Scan Product',
+    'manual.entry': 'Manual Entry',
+    'barcode.or.unique': 'Barcode or Unique Number',
+    'enter.manually': 'Enter barcode or unique number manually',
+    'start.scanning': 'Start Scanner',
+    'stop.scanning': 'Stop Scanner',
+    'product.quotation': 'Product Quotation',
+    'gold.rate': 'Gold Rate',
+    'silver.rate': 'Silver Rate',
+    'per.10.grams': 'per 10 grams',
+    'product.not.found': 'Product not found',
+    'scan.to.view': 'Scan a product to view quotation',
     
     // Dashboard
     'daily.turnover': 'Daily Turnover',
@@ -124,11 +137,24 @@ const translations = {
     bookings: 'बुकिंग',
     borrowings: 'कर्ज',
     messages: 'संदेश',
+    priceCalculator: 'किंमत कॅल्क्युलेटर',
     language: 'भाषा',
     
     // Products  
     'add.product': 'उत्पादन जोडा',
     'scan': 'स्कॅन',
+    'scan.product': 'उत्पादन स्कॅन करा',
+    'manual.entry': 'मॅन्युअल एंट्री',
+    'barcode.or.unique': 'बारकोड किंवा युनिक नंबर',
+    'enter.manually': 'बारकोड किंवा युनिक नंबर मॅन्युअली प्रविष्ट करा',
+    'start.scanning': 'स्कॅनर सुरू करा',
+    'stop.scanning': 'स्कॅनर थांबवा',
+    'product.quotation': 'उत्पादन कोटेशन',
+    'gold.rate': 'सोन्याचा दर',
+    'silver.rate': 'चांदीचा दर',
+    'per.10.grams': 'प्रति 10 ग्राम',
+    'product.not.found': 'उत्पादन सापडले नाही',
+    'scan.to.view': 'कोटेशन पाहण्यासाठी उत्पादन स्कॅन करा',
     
     // Dashboard
     'daily.turnover': 'दैनिक व्यापार',

@@ -5,7 +5,7 @@ import {
   Receipt,
   Users,
   CreditCard,
-  MessageSquare,
+  Calculator,
   Package,
   Globe,
   Bell,
@@ -31,7 +31,7 @@ const menuItems = [
   { title: 'customers', url: '/customers', icon: Users },
   { title: 'bookings', url: '/bookings', icon: Bell },
   { title: 'borrowings', url: '/borrowings', icon: CreditCard },
-  { title: 'messages', url: '/messages', icon: MessageSquare },
+  { title: 'priceCalculator', url: '/price-calculator', icon: Calculator },
 ];
 
 export function AppSidebar() {
