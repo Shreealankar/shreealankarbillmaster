@@ -89,24 +89,42 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
         </div>
       </div>
 
-      {/* Print styles to ensure bill starts from top */}
+      {/* Print styles to ensure only bill prints */}
       <style>{`
         @media print {
-          * {
-            margin: 0 !important;
-            padding: 0 !important;
+          @page {
+            margin: 0.5cm;
+            size: A4;
           }
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: auto !important;
+          
+          /* Hide everything by default */
+          body * {
+            visibility: hidden !important;
           }
+          
+          /* Show only the print container and its children */
+          .print-container,
+          .print-container * {
+            visibility: visible !important;
+          }
+          
+          /* Position print container at top left */
           .print-container {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 20px !important;
             page-break-inside: avoid;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+          }
+          
+          /* Ensure proper layout */
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
           }
         }
       `}</style>
