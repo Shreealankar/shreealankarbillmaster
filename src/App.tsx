@@ -13,6 +13,11 @@ import Customers from "./pages/Customers";
 import Bookings from "./pages/Bookings";
 import Borrowings from "./pages/Borrowings";
 import PriceCalculator from "./pages/PriceCalculator";
+import Reports from "./pages/Reports";
+import Vendors from "./pages/Vendors";
+import Schemes from "./pages/Schemes";
+import RepairJobs from "./pages/RepairJobs";
+import ActivityLogs from "./pages/ActivityLogs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +39,11 @@ const App = () => (
                 <Route path="/bookings" element={<Bookings />} />
                 <Route path="/borrowings" element={<Borrowings />} />
                 <Route path="/price-calculator" element={<PriceCalculator />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/vendors" element={<Vendors />} />
+                <Route path="/schemes" element={<Schemes />} />
+                <Route path="/repair-jobs" element={<RepairJobs />} />
+                <Route path="/activity-logs" element={<ActivityLogs />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

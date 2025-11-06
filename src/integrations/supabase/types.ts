@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          changes: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bill_items: {
         Row: {
           bill_id: string | null
@@ -512,6 +548,137 @@ export type Database = {
           },
         ]
       }
+      old_gold_exchanges: {
+        Row: {
+          bill_id: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          exchange_date: string
+          exchange_number: string
+          exchange_value: number
+          gross_weight: number
+          id: string
+          net_weight: number
+          notes: string | null
+          old_item_description: string
+          old_metal_type: string
+          old_purity: string
+          rate_per_gram: number
+          stone_weight: number | null
+        }
+        Insert: {
+          bill_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          exchange_date?: string
+          exchange_number: string
+          exchange_value: number
+          gross_weight: number
+          id?: string
+          net_weight: number
+          notes?: string | null
+          old_item_description: string
+          old_metal_type: string
+          old_purity: string
+          rate_per_gram: number
+          stone_weight?: number | null
+        }
+        Update: {
+          bill_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          exchange_date?: string
+          exchange_number?: string
+          exchange_value?: number
+          gross_weight?: number
+          id?: string
+          net_weight?: number
+          notes?: string | null
+          old_item_description?: string
+          old_metal_type?: string
+          old_purity?: string
+          rate_per_gram?: number
+          stone_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "old_gold_exchanges_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "old_gold_exchanges_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_transfers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_location: string
+          id: string
+          notes: string | null
+          product_id: string | null
+          quantity: number
+          received_by: string | null
+          received_date: string | null
+          status: string | null
+          to_location: string
+          transfer_date: string
+          transfer_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_location: string
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity: number
+          received_by?: string | null
+          received_date?: string | null
+          status?: string | null
+          to_location: string
+          transfer_date?: string
+          transfer_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_location?: string
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity?: number
+          received_by?: string | null
+          received_date?: string | null
+          status?: string | null
+          to_location?: string
+          transfer_date?: string
+          transfer_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_transfers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           barcode: string | null
@@ -611,6 +778,166 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          po_id: string | null
+          product_id: string | null
+          quantity: number
+          received_quantity: number | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          po_id?: string | null
+          product_id?: string | null
+          quantity: number
+          received_quantity?: number | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          po_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          received_quantity?: number | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_po_id_fkey"
+            columns: ["po_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expected_delivery_date: string | null
+          id: string
+          notes: string | null
+          order_date: string
+          paid_amount: number | null
+          po_number: string
+          status: string | null
+          total_amount: number | null
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          paid_amount?: number | null
+          po_number: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          paid_amount?: number | null
+          po_number?: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purity_tests: {
+        Row: {
+          claimed_purity: string
+          created_at: string
+          customer_name: string | null
+          id: string
+          metal_type: string
+          notes: string | null
+          product_id: string | null
+          test_date: string
+          test_method: string | null
+          test_number: string
+          test_result: string
+          tested_by: string | null
+          tested_purity: string
+          weight_grams: number
+        }
+        Insert: {
+          claimed_purity: string
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          metal_type: string
+          notes?: string | null
+          product_id?: string | null
+          test_date?: string
+          test_method?: string | null
+          test_number: string
+          test_result: string
+          tested_by?: string | null
+          tested_purity: string
+          weight_grams: number
+        }
+        Update: {
+          claimed_purity?: string
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          metal_type?: string
+          notes?: string | null
+          product_id?: string | null
+          test_date?: string
+          test_method?: string | null
+          test_number?: string
+          test_result?: string
+          tested_by?: string | null
+          tested_purity?: string
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purity_tests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rate_history: {
         Row: {
           created_at: string
@@ -662,6 +989,307 @@ export type Database = {
         }
         Relationships: []
       }
+      repair_jobs: {
+        Row: {
+          actual_cost: number | null
+          advance_paid: number | null
+          completion_date: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          delivery_date: string | null
+          estimated_cost: number | null
+          id: string
+          item_description: string
+          job_number: string
+          job_type: string
+          metal_type: string
+          notes: string | null
+          photos: Json | null
+          promised_date: string | null
+          received_date: string
+          status: string | null
+          updated_at: string
+          weight_grams: number | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          advance_paid?: number | null
+          completion_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          delivery_date?: string | null
+          estimated_cost?: number | null
+          id?: string
+          item_description: string
+          job_number: string
+          job_type: string
+          metal_type: string
+          notes?: string | null
+          photos?: Json | null
+          promised_date?: string | null
+          received_date?: string
+          status?: string | null
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Update: {
+          actual_cost?: number | null
+          advance_paid?: number | null
+          completion_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          delivery_date?: string | null
+          estimated_cost?: number | null
+          id?: string
+          item_description?: string
+          job_number?: string
+          job_type?: string
+          metal_type?: string
+          notes?: string | null
+          photos?: Json | null
+          promised_date?: string | null
+          received_date?: string
+          status?: string | null
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheme_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          installment_number: number
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          receipt_number: string | null
+          scheme_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          installment_number: number
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          receipt_number?: string | null
+          scheme_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          installment_number?: number
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          receipt_number?: string | null
+          scheme_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheme_payments_scheme_id_fkey"
+            columns: ["scheme_id"]
+            isOneToOne: false
+            referencedRelation: "schemes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schemes: {
+        Row: {
+          bonus_percentage: number | null
+          created_at: string
+          customer_id: string | null
+          end_date: string
+          id: string
+          installment_amount: number
+          notes: string | null
+          paid_installments: number | null
+          scheme_code: string
+          scheme_name: string
+          start_date: string
+          status: string | null
+          total_amount: number
+          total_installments: number
+          updated_at: string
+        }
+        Insert: {
+          bonus_percentage?: number | null
+          created_at?: string
+          customer_id?: string | null
+          end_date: string
+          id?: string
+          installment_amount: number
+          notes?: string | null
+          paid_installments?: number | null
+          scheme_code: string
+          scheme_name: string
+          start_date: string
+          status?: string | null
+          total_amount: number
+          total_installments: number
+          updated_at?: string
+        }
+        Update: {
+          bonus_percentage?: number | null
+          created_at?: string
+          customer_id?: string | null
+          end_date?: string
+          id?: string
+          installment_amount?: number
+          notes?: string | null
+          paid_installments?: number | null
+          scheme_code?: string
+          scheme_name?: string
+          start_date?: string
+          status?: string | null
+          total_amount?: number
+          total_installments?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schemes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          product_id: string | null
+          threshold_quantity: number | null
+          updated_at: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          product_id?: string | null
+          threshold_quantity?: number | null
+          updated_at?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          product_id?: string | null
+          threshold_quantity?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_alerts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stone_inventory: {
+        Row: {
+          carat_weight: number | null
+          certificate_number: string | null
+          clarity: string | null
+          color: string | null
+          cost_per_piece: number | null
+          created_at: string
+          cut_grade: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          quantity: number | null
+          shape: string | null
+          size_mm: string | null
+          status: string | null
+          stone_code: string
+          stone_type: string
+          total_value: number | null
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          carat_weight?: number | null
+          certificate_number?: string | null
+          clarity?: string | null
+          color?: string | null
+          cost_per_piece?: number | null
+          created_at?: string
+          cut_grade?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number | null
+          shape?: string | null
+          size_mm?: string | null
+          status?: string | null
+          stone_code: string
+          stone_type: string
+          total_value?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          carat_weight?: number | null
+          certificate_number?: string | null
+          clarity?: string | null
+          color?: string | null
+          cost_per_piece?: number | null
+          created_at?: string
+          cut_grade?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number | null
+          shape?: string | null
+          size_mm?: string | null
+          status?: string | null
+          stone_code?: string
+          stone_type?: string
+          total_value?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stone_inventory_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -707,6 +1335,102 @@ export type Database = {
         }
         Relationships: []
       }
+      vendors: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          gstin: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          notes: string | null
+          payment_terms: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notes?: string | null
+          payment_terms?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notes?: string | null
+          payment_terms?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wastage_records: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          disposal_date: string | null
+          disposed: boolean | null
+          id: string
+          metal_type: string
+          notes: string | null
+          purity: string
+          reason: string
+          record_number: string
+          recorded_date: string
+          updated_at: string
+          value_estimate: number | null
+          weight_grams: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          disposal_date?: string | null
+          disposed?: boolean | null
+          id?: string
+          metal_type: string
+          notes?: string | null
+          purity: string
+          reason: string
+          record_number: string
+          recorded_date?: string
+          updated_at?: string
+          value_estimate?: number | null
+          weight_grams: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          disposal_date?: string | null
+          disposed?: boolean | null
+          id?: string
+          metal_type?: string
+          notes?: string | null
+          purity?: string
+          reason?: string
+          record_number?: string
+          recorded_date?: string
+          updated_at?: string
+          value_estimate?: number | null
+          weight_grams?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -715,8 +1439,15 @@ export type Database = {
       cleanup_expired_email_otps: { Args: never; Returns: undefined }
       cleanup_expired_otps: { Args: never; Returns: undefined }
       generate_bill_number: { Args: never; Returns: string }
+      generate_exchange_number: { Args: never; Returns: string }
+      generate_job_number: { Args: never; Returns: string }
+      generate_po_number: { Args: never; Returns: string }
       generate_product_barcode: { Args: never; Returns: string }
       generate_product_unique_number: { Args: never; Returns: string }
+      generate_scheme_code: { Args: never; Returns: string }
+      generate_test_number: { Args: never; Returns: string }
+      generate_transfer_number: { Args: never; Returns: string }
+      generate_wastage_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

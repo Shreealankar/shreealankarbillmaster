@@ -9,6 +9,11 @@ import {
   Package,
   Globe,
   Bell,
+  BarChart3,
+  Truck,
+  DollarSign,
+  Wrench,
+  Activity,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -31,6 +36,11 @@ const menuItems = [
   { title: 'customers', url: '/customers', icon: Users },
   { title: 'bookings', url: '/bookings', icon: Bell },
   { title: 'borrowings', url: '/borrowings', icon: CreditCard },
+  { title: 'Reports', url: '/reports', icon: BarChart3 },
+  { title: 'Vendors', url: '/vendors', icon: Truck },
+  { title: 'Schemes', url: '/schemes', icon: DollarSign },
+  { title: 'Repair Jobs', url: '/repair-jobs', icon: Wrench },
+  { title: 'Activity Logs', url: '/activity-logs', icon: Activity },
   { title: 'priceCalculator', url: '/price-calculator', icon: Calculator },
 ];
 
