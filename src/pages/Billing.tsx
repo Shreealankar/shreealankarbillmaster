@@ -34,13 +34,15 @@ import { BillPrint } from "@/components/BillPrint";
 import { ProductScanner } from "@/components/ProductScanner";
 
 interface BillItem {
-  id: string; // Frontend temporary ID
+  id: string; // Frontend temporary ID or database UUID
   item_name: string;
   metal_type: string;
   purity: string;
   weight_grams: number;
   rate_per_gram: number;
   making_charges: number;
+  making_charges_type?: string;
+  making_charges_percentage?: number;
   stone_charges: number;
   other_charges: number;
   total_amount: number;
@@ -417,7 +419,11 @@ export default function Billing() {
         .single();
 
       if (bill) {
-        setCurrentBill({ ...bill, customer_email: bill.customers?.email });
+        setCurrentBill({ 
+          ...bill, 
+          customer_email: bill.customers?.email,
+          items: bill.bill_items || [] // Normalize items property for BillPrint
+        });
         setCustomer({
           name: bill.customer_name,
           phone: bill.customer_phone,
@@ -1282,7 +1288,7 @@ export default function Billing() {
             </div>
             <BillPrint 
               billData={currentBill} 
-              billItems={currentBill.items || billItems}
+              billItems={currentBill.items || currentBill.bill_items || billItems}
               isExistingBill={!!currentBill.id}
             />
           </div>
