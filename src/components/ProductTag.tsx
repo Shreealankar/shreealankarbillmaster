@@ -52,7 +52,7 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
       const barcodeHTML = barcodeElement ? barcodeElement.outerHTML : '';
       
       return `
-        <div class="tag-container" style="${index > 0 ? 'page-break-before: always;' : ''}">
+        <div class="tag-container">
           <div>
             <div class="product-name">
               ${item.name_english || item.title}
@@ -85,14 +85,21 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
           <title>Product Tag - ${product.name_english || product.title}</title>
           <style>
             @page {
-              size: 5cm 3cm;
-              margin: 0;
+              size: A4;
+              margin: 0.5cm;
             }
             body {
               margin: 0;
               padding: 0;
               font-family: Arial, sans-serif;
               font-size: 8px;
+            }
+            .tags-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 5cm);
+              grid-auto-rows: 3cm;
+              gap: 0.5cm;
+              width: 100%;
             }
             .tag-container {
               width: 5cm;
@@ -103,6 +110,7 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
               display: flex;
               flex-direction: column;
               justify-content: space-between;
+              page-break-inside: avoid;
             }
             .product-name {
               font-size: 9px;
@@ -146,7 +154,9 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
           </style>
         </head>
         <body>
-          ${tagsHTML}
+          <div class="tags-grid">
+            ${tagsHTML}
+          </div>
         </body>
       </html>
     `);
