@@ -77,6 +77,7 @@ export default function Reports() {
       fetchTopProducts(),
       fetchRateHistory(),
       fetchGSTR1Report(),
+      fetchPurchaseVouchers(),
     ]);
     setLoading(false);
   };
