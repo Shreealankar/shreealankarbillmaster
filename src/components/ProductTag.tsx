@@ -69,6 +69,7 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
                 <span class="label">Purity:</span>
                 <span>${item.purity}</span>
               </div>
+              ${item.huid_number ? `<div class="info-row"><span class="label">HUID:</span><span>${item.huid_number}</span></div>` : ''}
             </div>
           </div>
           
