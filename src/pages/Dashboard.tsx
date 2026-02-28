@@ -22,6 +22,8 @@ interface DashboardStats {
   totalCustomers: number;
   pendingBorrowings: number;
   recentBills: any[];
+  dailyPurchases: number;
+  monthlyPurchases: number;
 }
 
 export default function Dashboard() {
