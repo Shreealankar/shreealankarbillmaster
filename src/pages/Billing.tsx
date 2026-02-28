@@ -273,6 +273,19 @@ export default function Billing() {
     const discount_amount = (total_amount * billing.discount_percentage) / 100;
     const taxable_amount = total_amount - discount_amount;
     const tax_amount = (taxable_amount * billing.tax_percentage) / 100;
+    
+    // GST breakup
+    let cgst_amount = 0;
+    let sgst_amount = 0;
+    let igst_amount = 0;
+    
+    if (billing.is_igst) {
+      igst_amount = tax_amount;
+    } else {
+      cgst_amount = tax_amount / 2;
+      sgst_amount = tax_amount / 2;
+    }
+    
     const final_amount = taxable_amount + tax_amount;
     const balance_amount = final_amount - billing.paid_amount;
 
@@ -281,9 +294,28 @@ export default function Billing() {
       total_amount,
       discount_amount,
       tax_amount,
+      cgst_amount,
+      sgst_amount,
+      igst_amount,
       final_amount,
       balance_amount
     }));
+  };
+
+  // Auto-detect IGST based on customer GSTIN state code
+  useEffect(() => {
+    if (customer.gstin && customer.gstin.length >= 2) {
+      const customerStateCode = customer.gstin.substring(0, 2);
+      const isInterState = customerStateCode !== SHOP_STATE_CODE;
+      setBilling(prev => ({ ...prev, is_igst: isInterState }));
+    }
+  }, [customer.gstin]);
+
+  // Validate GSTIN format
+  const validateGSTIN = (gstin: string): boolean => {
+    if (!gstin) return true; // Optional field
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    return gstinRegex.test(gstin.toUpperCase());
   };
 
   const generateSABillNumber = async () => {
