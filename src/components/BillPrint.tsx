@@ -365,6 +365,14 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                   }
                 </span>
               </div>
+
+              {/* Amount in Words */}
+              <div className="border-t border-yellow-300 pt-2 print:border-gray-300 print:pt-1">
+                <p className="text-xs text-gray-600 print:text-xs italic">
+                  <span className="font-medium">Amount in Words: </span>
+                  {numberToWords(billData.final_amount)}
+                </p>
+              </div>
             </div>
           </div>
         </div>

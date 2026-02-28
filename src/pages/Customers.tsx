@@ -434,6 +434,13 @@ const Customers = () => {
                         )}
                       </TableCell>
                       <TableCell>
+                        {customer.gstin ? (
+                          <span className="font-mono text-xs">{customer.gstin}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         {customer.address ? (
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-muted-foreground" />

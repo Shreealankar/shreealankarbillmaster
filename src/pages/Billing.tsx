@@ -1154,7 +1154,7 @@ export default function Billing() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Tax %</Label>
+                  <Label className="text-xs">GST % (Jewelry: 3%)</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -1165,11 +1165,55 @@ export default function Billing() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Amount</Label>
+                  <Label className="text-xs">Total GST</Label>
                   <div className="h-8 px-3 py-1 text-sm bg-muted rounded-md flex items-center">
                     ₹{billing.tax_amount.toLocaleString('en-IN')}
                   </div>
                 </div>
+              </div>
+
+              {/* GST Breakup */}
+              <div className="p-2 bg-muted/50 rounded-md space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium">GST Type:</span>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={!billing.is_igst ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-6 text-xs px-2"
+                      onClick={() => setBilling({...billing, is_igst: false})}
+                    >
+                      CGST+SGST
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={billing.is_igst ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-6 text-xs px-2"
+                      onClick={() => setBilling({...billing, is_igst: true})}
+                    >
+                      IGST
+                    </Button>
+                  </div>
+                </div>
+                {!billing.is_igst ? (
+                  <>
+                    <div className="flex justify-between text-xs">
+                      <span>CGST ({(billing.tax_percentage / 2).toFixed(1)}%):</span>
+                      <span>₹{billing.cgst_amount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span>SGST ({(billing.tax_percentage / 2).toFixed(1)}%):</span>
+                      <span>₹{billing.sgst_amount.toLocaleString('en-IN')}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-xs">
+                    <span>IGST ({billing.tax_percentage}%):</span>
+                    <span>₹{billing.igst_amount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
               </div>
 
               <Separator />
