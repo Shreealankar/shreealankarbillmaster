@@ -44,6 +44,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url || null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [huidNumber, setHuidNumber] = useState(product?.huid_number || '');
+  const [hallmarkStatus, setHallmarkStatus] = useState(product?.hallmark_status || 'pending');
+  const [hallmarkDate, setHallmarkDate] = useState(product?.hallmark_date || '');
+  const [hallmarkCenter, setHallmarkCenter] = useState(product?.hallmark_center || '');
   
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     defaultValues: product ? {
