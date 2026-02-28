@@ -1507,39 +1507,6 @@ export default function Billing() {
         </div>
       )}
 
-      {/* Print Bill Modal */}
-      {showPrint && currentBill && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="text-lg font-semibold">बिल छापा</h3>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPrint(false)}
-              >
-                बंद करा
-              </Button>
-            </div>
-            <BillPrint 
-              billData={currentBill} 
-              billItems={currentBill.items || currentBill.bill_items || billItems}
-              isExistingBill={!!currentBill.id}
-            />
-          </div>
-        </div>
-      )}
-      {/* Scanner Dialog */}
-      <Dialog open={showScanner} onOpenChange={setShowScanner}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Scan Product</DialogTitle>
-            <DialogDescription>
-              Scan a barcode or enter a unique number to find and add a product
-            </DialogDescription>
-          </DialogHeader>
-          <ProductScanner onScan={handleScanResult} />
-        </DialogContent>
-      </Dialog>
 
         </TabsContent>
 
