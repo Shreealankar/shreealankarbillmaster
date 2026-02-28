@@ -273,6 +273,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                   <tr key={index} className="hover:bg-gray-50 print:hover:bg-white">
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{index + 1}</td>
                     <td className="px-4 py-3 text-sm font-medium print:px-2 print:py-1 print:text-xs">{item.item_name}</td>
+                    <td className="px-4 py-3 text-sm font-mono print:px-2 print:py-1 print:text-xs">{(item as any).hsn_code || '7113'}</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{item.weight_grams}g</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
