@@ -18,6 +18,9 @@ import Vendors from "./pages/Vendors";
 import Schemes from "./pages/Schemes";
 import RepairJobs from "./pages/RepairJobs";
 import ActivityLogs from "./pages/ActivityLogs";
+import Expenses from "./pages/Expenses";
+import CashBook from "./pages/CashBook";
+import Estimates from "./pages/Estimates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
