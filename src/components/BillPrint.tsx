@@ -259,6 +259,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">#</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Item Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">HSN</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Type/Purity</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Weight (g)</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Rate/g</th>
