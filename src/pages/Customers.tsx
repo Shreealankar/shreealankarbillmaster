@@ -16,6 +16,7 @@ interface Customer {
   phone: string;
   address: string;
   email: string;
+  gstin?: string;
   created_at: string;
 }
 
