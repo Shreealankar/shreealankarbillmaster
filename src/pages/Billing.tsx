@@ -372,6 +372,7 @@ export default function Billing() {
         customer_name: customer.name,
         customer_phone: customer.phone,
         customer_address: customer.address,
+        customer_gstin: customer.gstin || null,
         total_weight: billItems.reduce((sum, item) => sum + item.weight_grams, 0),
         created_at: billDate.toISOString(),
         ...billing
