@@ -13,6 +13,7 @@ interface ProductTagProps {
     purity: string;
     barcode?: string;
     unique_number?: string;
+    huid_number?: string;
   };
   products?: Array<{
     title?: string;
@@ -22,6 +23,7 @@ interface ProductTagProps {
     purity: string;
     barcode?: string;
     unique_number?: string;
+    huid_number?: string;
   }>;
 }
 
