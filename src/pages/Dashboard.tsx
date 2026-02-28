@@ -154,6 +154,20 @@ export default function Dashboard() {
       icon: Users,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10'
+    },
+    {
+      title: 'दैनिक खरेदी (Purchases)',
+      value: formatCurrency(stats.dailyPurchases),
+      icon: ShoppingBag,
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-500/10'
+    },
+    {
+      title: 'मासिक खरेदी (Purchases)',
+      value: formatCurrency(stats.monthlyPurchases),
+      icon: ShoppingBag,
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-600/10'
     }
   ];
 
@@ -182,7 +196,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat, index) => (
           <Card key={index} className="relative overflow-hidden bg-card/50 backdrop-blur-sm border-border hover:shadow-gold transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

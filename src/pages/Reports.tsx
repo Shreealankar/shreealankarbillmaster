@@ -239,6 +239,16 @@ export default function Reports() {
     }
   };
 
+  const fetchPurchaseVouchers = async () => {
+    const { data, error } = await supabase
+      .from("purchase_vouchers")
+      .select("*")
+      .gte("voucher_date", dateRange.from.toISOString())
+      .lte("voucher_date", dateRange.to.toISOString())
+      .order("voucher_date", { ascending: false });
+    if (!error && data) setPurchaseVouchers(data);
+  };
+
   const exportReport = (type: string) => {
     toast.success(`Exporting ${type} report...`);
   };
