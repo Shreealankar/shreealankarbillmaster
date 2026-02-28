@@ -241,6 +241,12 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Email:</span>
                 <span className="text-sm text-gray-900 print:text-xs">{billData.customer_email || 'N/A'}</span>
               </div>
+              {billData.customer_gstin && (
+                <div className="flex">
+                  <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">GSTIN:</span>
+                  <span className="text-sm text-gray-900 font-mono print:text-xs">{billData.customer_gstin}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
