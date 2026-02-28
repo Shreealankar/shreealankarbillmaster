@@ -900,6 +900,98 @@ export type Database = {
           },
         ]
       }
+      purchase_voucher_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_description: string
+          metal_type: string | null
+          net_weight: number
+          purity: string
+          rate_per_gram: number
+          total_amount: number
+          voucher_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_description: string
+          metal_type?: string | null
+          net_weight: number
+          purity: string
+          rate_per_gram: number
+          total_amount: number
+          voucher_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_description?: string
+          metal_type?: string | null
+          net_weight?: number
+          purity?: string
+          rate_per_gram?: number
+          total_amount?: number
+          voucher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_voucher_items_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_vouchers: {
+        Row: {
+          created_at: string
+          customer_address: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          notes: string | null
+          pan_aadhaar: string | null
+          payment_method: string | null
+          total_amount: number
+          total_weight: number
+          utr_number: string | null
+          voucher_date: string
+          voucher_number: string
+        }
+        Insert: {
+          created_at?: string
+          customer_address?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          notes?: string | null
+          pan_aadhaar?: string | null
+          payment_method?: string | null
+          total_amount?: number
+          total_weight?: number
+          utr_number?: string | null
+          voucher_date?: string
+          voucher_number: string
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notes?: string | null
+          pan_aadhaar?: string | null
+          payment_method?: string | null
+          total_amount?: number
+          total_weight?: number
+          utr_number?: string | null
+          voucher_date?: string
+          voucher_number?: string
+        }
+        Relationships: []
+      }
       purity_tests: {
         Row: {
           claimed_purity: string
@@ -1468,6 +1560,7 @@ export type Database = {
       generate_scheme_code: { Args: never; Returns: string }
       generate_test_number: { Args: never; Returns: string }
       generate_transfer_number: { Args: never; Returns: string }
+      generate_voucher_number: { Args: never; Returns: string }
       generate_wastage_number: { Args: never; Returns: string }
       has_role: {
         Args: {

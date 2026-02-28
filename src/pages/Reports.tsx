@@ -61,6 +61,7 @@ export default function Reports() {
   const [gstr1B2B, setGstr1B2B] = useState<GSTR1Bill[]>([]);
   const [gstr1B2C, setGstr1B2C] = useState<GSTR1Bill[]>([]);
   const [monthlyTax, setMonthlyTax] = useState<MonthlyTax[]>([]);
+  const [purchaseVouchers, setPurchaseVouchers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -76,6 +77,7 @@ export default function Reports() {
       fetchTopProducts(),
       fetchRateHistory(),
       fetchGSTR1Report(),
+      fetchPurchaseVouchers(),
     ]);
     setLoading(false);
   };
@@ -237,6 +239,16 @@ export default function Reports() {
     }
   };
 
+  const fetchPurchaseVouchers = async () => {
+    const { data, error } = await supabase
+      .from("purchase_vouchers")
+      .select("*")
+      .gte("voucher_date", dateRange.from.toISOString())
+      .lte("voucher_date", dateRange.to.toISOString())
+      .order("voucher_date", { ascending: false });
+    if (!error && data) setPurchaseVouchers(data);
+  };
+
   const exportReport = (type: string) => {
     toast.success(`Exporting ${type} report...`);
   };
@@ -322,6 +334,7 @@ export default function Reports() {
       <Tabs defaultValue="sales" className="space-y-4">
         <TabsList className="flex-wrap">
           <TabsTrigger value="sales">Sales Report</TabsTrigger>
+          <TabsTrigger value="purchases">Purchases</TabsTrigger>
           <TabsTrigger value="stock">Stock Valuation</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="products">Top Products</TabsTrigger>
@@ -388,6 +401,88 @@ export default function Reports() {
                   <Bar dataKey="profit" fill="hsl(var(--chart-2))" name="Profit" />
                 </BarChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="purchases" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Purchase Amount</CardTitle>
+                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  ₹{purchaseVouchers.reduce((s, v) => s + Number(v.total_amount || 0), 0).toLocaleString("en-IN")}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Weight Purchased</CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {purchaseVouchers.reduce((s, v) => s + Number(v.total_weight || 0), 0).toFixed(3)}g
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Vouchers</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{purchaseVouchers.length}</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Purchase Vouchers (खरेदी पावत्या)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {purchaseVouchers.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No purchase vouchers in selected period</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Voucher No</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead className="text-right">Weight (g)</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead>Payment</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {purchaseVouchers.map((v) => (
+                        <TableRow key={v.id}>
+                          <TableCell className="font-medium">{v.voucher_number}</TableCell>
+                          <TableCell>{format(new Date(v.voucher_date), "dd/MM/yyyy")}</TableCell>
+                          <TableCell>{v.customer_name}</TableCell>
+                          <TableCell>{v.customer_phone}</TableCell>
+                          <TableCell className="text-right">{Number(v.total_weight).toFixed(3)}</TableCell>
+                          <TableCell className="text-right font-bold">₹{Number(v.total_amount).toLocaleString("en-IN")}</TableCell>
+                          <TableCell>{v.payment_method === 'cash' ? 'रोख' : 'बँक'}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="bg-muted/50 font-bold">
+                        <TableCell colSpan={4}>Total</TableCell>
+                        <TableCell className="text-right">{purchaseVouchers.reduce((s, v) => s + Number(v.total_weight || 0), 0).toFixed(3)}</TableCell>
+                        <TableCell className="text-right">₹{purchaseVouchers.reduce((s, v) => s + Number(v.total_amount || 0), 0).toLocaleString("en-IN")}</TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -9,7 +9,8 @@ import {
   AlertCircle,
   Calendar,
   IndianRupee,
-  Eye
+  Eye,
+  ShoppingBag
 } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,8 @@ interface DashboardStats {
   totalCustomers: number;
   pendingBorrowings: number;
   recentBills: any[];
+  dailyPurchases: number;
+  monthlyPurchases: number;
 }
 
 export default function Dashboard() {
@@ -32,7 +35,9 @@ export default function Dashboard() {
     yearlyTurnover: 0,
     totalCustomers: 0,
     pendingBorrowings: 0,
-    recentBills: []
+    recentBills: [],
+    dailyPurchases: 0,
+    monthlyPurchases: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -83,13 +88,27 @@ export default function Dashboard() {
         .order('created_at', { ascending: false })
         .limit(5);
 
+      // Purchase vouchers - daily
+      const { data: dailyPurchases } = await supabase
+        .from('purchase_vouchers')
+        .select('total_amount')
+        .gte('created_at', startOfDay.toISOString());
+
+      // Purchase vouchers - monthly
+      const { data: monthlyPurchases } = await supabase
+        .from('purchase_vouchers')
+        .select('total_amount')
+        .gte('created_at', startOfMonth.toISOString());
+
       setStats({
         dailyTurnover: dailyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         monthlyTurnover: monthlyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         yearlyTurnover: yearlyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         totalCustomers: customerCount || 0,
         pendingBorrowings: borrowingCount || 0,
-        recentBills: recentBills || []
+        recentBills: recentBills || [],
+        dailyPurchases: dailyPurchases?.reduce((sum, v) => sum + Number(v.total_amount), 0) || 0,
+        monthlyPurchases: monthlyPurchases?.reduce((sum, v) => sum + Number(v.total_amount), 0) || 0,
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -135,6 +154,20 @@ export default function Dashboard() {
       icon: Users,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10'
+    },
+    {
+      title: 'दैनिक खरेदी (Purchases)',
+      value: formatCurrency(stats.dailyPurchases),
+      icon: ShoppingBag,
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-500/10'
+    },
+    {
+      title: 'मासिक खरेदी (Purchases)',
+      value: formatCurrency(stats.monthlyPurchases),
+      icon: ShoppingBag,
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-600/10'
     }
   ];
 
@@ -163,7 +196,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat, index) => (
           <Card key={index} className="relative overflow-hidden bg-card/50 backdrop-blur-sm border-border hover:shadow-gold transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
