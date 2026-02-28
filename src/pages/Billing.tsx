@@ -1540,6 +1540,261 @@ export default function Billing() {
           <ProductScanner onScan={handleScanResult} />
         </DialogContent>
       </Dialog>
+
+        </TabsContent>
+
+        {/* ========== Purchase Voucher Tab ========== */}
+        <TabsContent value="purchase" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">जुने सोने/चांदी खरेदी पावती</h2>
+            <div className="flex gap-2">
+              <Button onClick={resetPvForm} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                नवीन पावती
+              </Button>
+              <Button onClick={savePurchaseVoucher} disabled={pvLoading} className="bg-gradient-gold text-white">
+                <Printer className="h-4 w-4 mr-2" />
+                पावती तयार करा
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Customer Details */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5 text-primary" />
+                  ग्राहक माहिती
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>पावतीची तारीख</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(pvDate, "dd/MM/yyyy")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={pvDate} onSelect={(d) => d && setPvDate(d)} initialFocus className="pointer-events-auto" />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>ग्राहकाचे नाव *</Label>
+                  <Input value={pvCustomer.name} onChange={(e) => setPvCustomer({...pvCustomer, name: e.target.value})} placeholder="नाव प्रविष्ट करा" />
+                </div>
+                <div className="space-y-2">
+                  <Label>मोबाईल क्र. *</Label>
+                  <Input value={pvCustomer.phone} onChange={(e) => setPvCustomer({...pvCustomer, phone: e.target.value})} placeholder="फोन नंबर" />
+                </div>
+                <div className="space-y-2">
+                  <Label>पत्ता</Label>
+                  <Textarea value={pvCustomer.address} onChange={(e) => setPvCustomer({...pvCustomer, address: e.target.value})} placeholder="पत्ता" rows={2} />
+                </div>
+                <div className="space-y-2">
+                  <Label>पॅन / आधार क्र.</Label>
+                  <Input value={pvCustomer.pan_aadhaar} onChange={(e) => setPvCustomer({...pvCustomer, pan_aadhaar: e.target.value})} placeholder="PAN / Aadhaar number" />
+                  <p className="text-xs text-muted-foreground">मोठ्या रकमेसाठी आवश्यक</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Add Item */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5 text-primary" />
+                  दागिना जोडा
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>दागिन्यांचा तपशील *</Label>
+                  <Input value={pvNewItem.item_description} onChange={(e) => setPvNewItem({...pvNewItem, item_description: e.target.value})} placeholder="उदा. अंगठी, चैन" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>धातू</Label>
+                    <Select value={pvNewItem.metal_type} onValueChange={(v) => setPvNewItem({...pvNewItem, metal_type: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gold">सोने (Gold)</SelectItem>
+                        <SelectItem value="silver">चांदी (Silver)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>शुद्धता</Label>
+                    <Select value={pvNewItem.purity} onValueChange={(v) => setPvNewItem({...pvNewItem, purity: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="24K">24K</SelectItem>
+                        <SelectItem value="22K">22K</SelectItem>
+                        <SelectItem value="20K">20K</SelectItem>
+                        <SelectItem value="18K">18K</SelectItem>
+                        <SelectItem value="pure">Pure Silver</SelectItem>
+                        <SelectItem value="925">925 Silver</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>निव्वळ वजन (ग्रॅम) *</Label>
+                    <Input type="number" step="0.001" value={pvNewItem.net_weight || ''} onChange={(e) => setPvNewItem({...pvNewItem, net_weight: Number(e.target.value)})} placeholder="0.000" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center justify-between">
+                      दर प्रति ग्रॅम *
+                      <Button type="button" variant="outline" size="sm" onClick={autoFillPvRate} className="h-6 text-xs">Auto</Button>
+                    </Label>
+                    <Input type="number" step="0.01" value={pvNewItem.rate_per_gram || ''} onChange={(e) => setPvNewItem({...pvNewItem, rate_per_gram: Number(e.target.value)})} placeholder="0.00" />
+                  </div>
+                </div>
+                {pvNewItem.net_weight > 0 && pvNewItem.rate_per_gram > 0 && (
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <div className="text-sm text-muted-foreground">एकूण रक्कम:</div>
+                    <div className="text-lg font-semibold text-primary">₹{(pvNewItem.net_weight * pvNewItem.rate_per_gram).toLocaleString('en-IN')}</div>
+                  </div>
+                )}
+                <Button onClick={addPvItem} className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  वस्तू जोडा
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Summary */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5 text-primary" />
+                  सारांश
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between text-lg font-bold">
+                  <span>एकूण वजन:</span>
+                  <span>{pvTotalWeight.toFixed(3)} ग्रॅम</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold">
+                  <span>एकूण रक्कम:</span>
+                  <span className="text-primary">₹{pvTotalAmount.toLocaleString('en-IN')}</span>
+                </div>
+                <Separator />
+                <div className="p-2 bg-muted/50 rounded-md text-xs text-muted-foreground">
+                  <strong>GST:</strong> या व्यवहारावर GST लागू नाही (No GST applicable)
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <Label>रक्कम देण्याची पद्धत</Label>
+                  <Select value={pvPayment.method} onValueChange={(v) => setPvPayment({...pvPayment, method: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cash">रोख (Cash)</SelectItem>
+                      <SelectItem value="bank">बँक ट्रान्सफर (UPI/NEFT)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {pvPayment.method === 'bank' && (
+                  <div className="space-y-2">
+                    <Label>UTR क्र.</Label>
+                    <Input value={pvPayment.utr_number} onChange={(e) => setPvPayment({...pvPayment, utr_number: e.target.value})} placeholder="UTR Number" />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label>टिप्पण्या</Label>
+                  <Textarea value={pvPayment.notes} onChange={(e) => setPvPayment({...pvPayment, notes: e.target.value})} placeholder="अतिरिक्त नोट्स..." rows={2} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* PV Items Table */}
+          {pvItems.length > 0 && (
+            <Card className="bg-card/50 backdrop-blur-sm border-border">
+              <CardHeader>
+                <CardTitle>खरेदी वस्तू ({pvItems.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>अ.क्र.</TableHead>
+                        <TableHead>तपशील</TableHead>
+                        <TableHead>धातू/शुद्धता</TableHead>
+                        <TableHead className="text-right">वजन (ग्रॅम)</TableHead>
+                        <TableHead className="text-right">दर/ग्रॅम</TableHead>
+                        <TableHead className="text-right">एकूण</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pvItems.map((item, idx) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{idx + 1}</TableCell>
+                          <TableCell className="font-medium">{item.item_description}</TableCell>
+                          <TableCell><Badge variant="secondary">{item.metal_type} {item.purity}</Badge></TableCell>
+                          <TableCell className="text-right">{item.net_weight.toFixed(3)}</TableCell>
+                          <TableCell className="text-right">₹{item.rate_per_gram.toLocaleString('en-IN')}</TableCell>
+                          <TableCell className="text-right font-semibold">₹{item.total_amount.toLocaleString('en-IN')}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" onClick={() => removePvItem(item.id)} className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Print Bill Modal - Sales */}
+      {showPrint && currentBill && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-semibold">बिल छापा</h3>
+              <Button variant="outline" onClick={() => setShowPrint(false)}>बंद करा</Button>
+            </div>
+            <BillPrint billData={currentBill} billItems={currentBill.items || currentBill.bill_items || billItems} isExistingBill={!!currentBill.id} />
+          </div>
+        </div>
+      )}
+
+      {/* Print Purchase Voucher Modal */}
+      {showPvPrint && currentVoucher && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-semibold">खरेदी पावती छापा</h3>
+              <Button variant="outline" onClick={() => setShowPvPrint(false)}>बंद करा</Button>
+            </div>
+            <PurchaseVoucherPrint voucherData={currentVoucher} items={currentVoucherItems} />
+          </div>
+        </div>
+      )}
+
+      {/* Scanner Dialog */}
+      <Dialog open={showScanner} onOpenChange={setShowScanner}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Scan Product</DialogTitle>
+            <DialogDescription>Scan a barcode or enter a unique number to find and add a product</DialogDescription>
+          </DialogHeader>
+          <ProductScanner onScan={handleScanResult} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
