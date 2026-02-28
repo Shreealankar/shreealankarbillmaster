@@ -429,16 +429,17 @@ const Customers = () => {
                             <Mail className="h-4 w-4 text-muted-foreground" />
                             {customer.email}
                           </div>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        ) : <span className="text-muted-foreground">-</span>}
                       </TableCell>
                       <TableCell>
-                        {customer.gstin ? (
-                          <span className="font-mono text-xs">{customer.gstin}</span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        {(customer as any).date_of_birth
+                          ? new Date((customer as any).date_of_birth).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+                          : <span className="text-muted-foreground">-</span>}
+                      </TableCell>
+                      <TableCell>
+                        {(customer as any).anniversary_date
+                          ? new Date((customer as any).anniversary_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+                          : <span className="text-muted-foreground">-</span>}
                       </TableCell>
                       <TableCell>
                         {customer.address ? (
@@ -446,12 +447,7 @@ const Customers = () => {
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             <span className="max-w-xs truncate">{customer.address}</span>
                           </div>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(customer.created_at).toLocaleDateString('en-IN')}
+                        ) : <span className="text-muted-foreground">-</span>}
                       </TableCell>
                     </TableRow>
                   ))}
