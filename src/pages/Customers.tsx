@@ -404,6 +404,7 @@ const Customers = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>GSTIN</TableHead>
                     <TableHead>Address</TableHead>
                     <TableHead>Added Date</TableHead>
                   </TableRow>
