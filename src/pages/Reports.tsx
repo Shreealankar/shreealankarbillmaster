@@ -334,6 +334,7 @@ export default function Reports() {
       <Tabs defaultValue="sales" className="space-y-4">
         <TabsList className="flex-wrap">
           <TabsTrigger value="sales">Sales Report</TabsTrigger>
+          <TabsTrigger value="purchases">Purchases</TabsTrigger>
           <TabsTrigger value="stock">Stock Valuation</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="products">Top Products</TabsTrigger>
