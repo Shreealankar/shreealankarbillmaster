@@ -61,6 +61,7 @@ export default function Reports() {
   const [gstr1B2B, setGstr1B2B] = useState<GSTR1Bill[]>([]);
   const [gstr1B2C, setGstr1B2C] = useState<GSTR1Bill[]>([]);
   const [monthlyTax, setMonthlyTax] = useState<MonthlyTax[]>([]);
+  const [purchaseVouchers, setPurchaseVouchers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
