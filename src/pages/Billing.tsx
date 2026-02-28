@@ -611,12 +611,13 @@ export default function Billing() {
     setSearchBillNo('');
   };
 
-  const selectCustomer = (selectedCustomer: Customer) => {
+  const selectCustomer = (selectedCustomer: any) => {
     setCustomer({
       name: selectedCustomer.name,
       phone: selectedCustomer.phone,
       address: selectedCustomer.address || '',
-      email: selectedCustomer.email || ''
+      email: selectedCustomer.email || '',
+      gstin: selectedCustomer.gstin || ''
     });
   };
 
