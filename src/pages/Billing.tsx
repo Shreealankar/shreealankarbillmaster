@@ -97,12 +97,20 @@ export default function Billing() {
     discount_amount: 0,
     tax_percentage: 3,
     tax_amount: 0,
+    cgst_amount: 0,
+    sgst_amount: 0,
+    igst_amount: 0,
+    is_igst: false,
     final_amount: 0,
     paid_amount: 0,
     balance_amount: 0,
     payment_method: 'cash',
     notes: ''
   });
+
+  // Shop GSTIN - Maharashtra state code 27
+  const SHOP_GSTIN = '27XXXXX0000X1Z5'; // Replace with actual GSTIN
+  const SHOP_STATE_CODE = '27';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
