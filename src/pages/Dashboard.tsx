@@ -87,13 +87,27 @@ export default function Dashboard() {
         .order('created_at', { ascending: false })
         .limit(5);
 
+      // Purchase vouchers - daily
+      const { data: dailyPurchases } = await supabase
+        .from('purchase_vouchers')
+        .select('total_amount')
+        .gte('created_at', startOfDay.toISOString());
+
+      // Purchase vouchers - monthly
+      const { data: monthlyPurchases } = await supabase
+        .from('purchase_vouchers')
+        .select('total_amount')
+        .gte('created_at', startOfMonth.toISOString());
+
       setStats({
         dailyTurnover: dailyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         monthlyTurnover: monthlyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         yearlyTurnover: yearlyBills?.reduce((sum, bill) => sum + Number(bill.final_amount), 0) || 0,
         totalCustomers: customerCount || 0,
         pendingBorrowings: borrowingCount || 0,
-        recentBills: recentBills || []
+        recentBills: recentBills || [],
+        dailyPurchases: dailyPurchases?.reduce((sum, v) => sum + Number(v.total_amount), 0) || 0,
+        monthlyPurchases: monthlyPurchases?.reduce((sum, v) => sum + Number(v.total_amount), 0) || 0,
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
