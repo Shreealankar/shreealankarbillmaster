@@ -165,7 +165,8 @@ export default function Billing() {
           name: data.customerName || '',
           phone: data.customerPhone || '',
           address: data.customerAddress || '',
-          email: data.email || ''
+          email: data.email || '',
+          gstin: ''
         });
         
         // Optionally prefill an item with the gold weight
