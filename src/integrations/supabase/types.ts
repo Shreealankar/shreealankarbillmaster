@@ -390,6 +390,51 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_book_entries: {
+        Row: {
+          cash_in: number | null
+          cash_out: number | null
+          category: string
+          created_at: string
+          description: string
+          entry_date: string
+          entry_type: string
+          id: string
+          notes: string | null
+          payment_mode: string | null
+          reference_id: string | null
+          reference_type: string | null
+        }
+        Insert: {
+          cash_in?: number | null
+          cash_out?: number | null
+          category: string
+          created_at?: string
+          description: string
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          notes?: string | null
+          payment_mode?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Update: {
+          cash_in?: number | null
+          cash_out?: number | null
+          category?: string
+          created_at?: string
+          description?: string
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          notes?: string | null
+          payment_mode?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Relationships: []
+      }
       customer_profiles: {
         Row: {
           created_at: string
@@ -435,7 +480,9 @@ export type Database = {
       customers: {
         Row: {
           address: string | null
+          anniversary_date: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
           gstin: string | null
           id: string
@@ -445,7 +492,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          anniversary_date?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           gstin?: string | null
           id?: string
@@ -455,7 +504,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          anniversary_date?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           gstin?: string | null
           id?: string
@@ -491,6 +542,185 @@ export type Database = {
           id?: string
           is_verified?: boolean
           otp_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      estimate_items: {
+        Row: {
+          created_at: string
+          estimate_id: string | null
+          hsn_code: string | null
+          id: string
+          item_name: string
+          making_charges: number | null
+          making_charges_percentage: number | null
+          making_charges_type: string | null
+          metal_type: string
+          other_charges: number | null
+          purity: string
+          rate_per_gram: number
+          stone_charges: number | null
+          total_amount: number
+          weight_grams: number
+        }
+        Insert: {
+          created_at?: string
+          estimate_id?: string | null
+          hsn_code?: string | null
+          id?: string
+          item_name: string
+          making_charges?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
+          metal_type?: string
+          other_charges?: number | null
+          purity?: string
+          rate_per_gram: number
+          stone_charges?: number | null
+          total_amount: number
+          weight_grams: number
+        }
+        Update: {
+          created_at?: string
+          estimate_id?: string | null
+          hsn_code?: string | null
+          id?: string
+          item_name?: string
+          making_charges?: number | null
+          making_charges_percentage?: number | null
+          making_charges_type?: string | null
+          metal_type?: string
+          other_charges?: number | null
+          purity?: string
+          rate_per_gram?: number
+          stone_charges?: number | null
+          total_amount?: number
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_items_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimates: {
+        Row: {
+          cgst_amount: number | null
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_gstin: string | null
+          customer_name: string
+          customer_phone: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          estimate_number: string
+          final_amount: number
+          id: string
+          igst_amount: number | null
+          is_igst: boolean | null
+          notes: string | null
+          sgst_amount: number | null
+          status: string
+          tax_amount: number | null
+          tax_percentage: number | null
+          total_amount: number
+          total_weight: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          cgst_amount?: number | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_gstin?: string | null
+          customer_name: string
+          customer_phone: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          estimate_number: string
+          final_amount?: number
+          id?: string
+          igst_amount?: number | null
+          is_igst?: boolean | null
+          notes?: string | null
+          sgst_amount?: number | null
+          status?: string
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          total_amount?: number
+          total_weight?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          cgst_amount?: number | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_gstin?: string | null
+          customer_name?: string
+          customer_phone?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          estimate_number?: string
+          final_amount?: number
+          id?: string
+          igst_amount?: number | null
+          is_igst?: boolean | null
+          notes?: string | null
+          sgst_amount?: number | null
+          status?: string
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          total_amount?: number
+          total_weight?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          receipt_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description: string
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          receipt_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -706,6 +936,10 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at: string
           description: string | null
+          hallmark_center: string | null
+          hallmark_date: string | null
+          hallmark_status: string | null
+          huid_number: string | null
           id: string
           image_url: string | null
           making_charges_manual: number | null
@@ -731,6 +965,10 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
+          hallmark_center?: string | null
+          hallmark_date?: string | null
+          hallmark_status?: string | null
+          huid_number?: string | null
           id?: string
           image_url?: string | null
           making_charges_manual?: number | null
@@ -756,6 +994,10 @@ export type Database = {
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
+          hallmark_center?: string | null
+          hallmark_date?: string | null
+          hallmark_status?: string | null
+          huid_number?: string | null
           id?: string
           image_url?: string | null
           making_charges_manual?: number | null
@@ -1552,6 +1794,7 @@ export type Database = {
       cleanup_expired_email_otps: { Args: never; Returns: undefined }
       cleanup_expired_otps: { Args: never; Returns: undefined }
       generate_bill_number: { Args: never; Returns: string }
+      generate_estimate_number: { Args: never; Returns: string }
       generate_exchange_number: { Args: never; Returns: string }
       generate_job_number: { Args: never; Returns: string }
       generate_po_number: { Args: never; Returns: string }

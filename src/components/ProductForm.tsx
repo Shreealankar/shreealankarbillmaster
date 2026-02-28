@@ -44,6 +44,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url || null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [huidNumber, setHuidNumber] = useState(product?.huid_number || '');
+  const [hallmarkStatus, setHallmarkStatus] = useState(product?.hallmark_status || 'pending');
+  const [hallmarkDate, setHallmarkDate] = useState(product?.hallmark_date || '');
+  const [hallmarkCenter, setHallmarkCenter] = useState(product?.hallmark_center || '');
   
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     defaultValues: product ? {
@@ -192,6 +196,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         barcode: product ? product.barcode : generatedCodes?.barcode,
         unique_number: product ? product.unique_number : generatedCodes?.uniqueNumber,
         image_url: imageUrl,
+        huid_number: huidNumber || null,
+        hallmark_status: hallmarkStatus,
+        hallmark_date: hallmarkDate || null,
+        hallmark_center: hallmarkCenter || null,
       };
 
       let result;
@@ -473,6 +481,53 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
           </SelectContent>
         </Select>
       </div>
+
+      {/* HUID / Hallmarking Details */}
+      <Card>
+        <CardHeader><CardTitle className="text-sm">Hallmarking / HUID Details</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="huid_number">HUID Number</Label>
+              <Input
+                id="huid_number"
+                value={huidNumber}
+                onChange={(e) => setHuidNumber(e.target.value)}
+                placeholder="e.g., AB1234CD5678"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hallmark Status</Label>
+              <Select value={hallmarkStatus} onValueChange={setHallmarkStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="sent">Sent for Hallmarking</SelectItem>
+                  <SelectItem value="hallmarked">Hallmarked ✓</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hallmark_date">Hallmark Date</Label>
+              <Input
+                id="hallmark_date"
+                type="date"
+                value={hallmarkDate}
+                onChange={(e) => setHallmarkDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hallmark_center">Hallmark Center</Label>
+              <Input
+                id="hallmark_center"
+                value={hallmarkCenter}
+                onChange={(e) => setHallmarkCenter(e.target.value)}
+                placeholder="BIS Hallmarking Center name"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Generated Codes Preview */}
       {!product && generatedCodes && (

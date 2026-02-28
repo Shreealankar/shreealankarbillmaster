@@ -18,6 +18,9 @@ import Vendors from "./pages/Vendors";
 import Schemes from "./pages/Schemes";
 import RepairJobs from "./pages/RepairJobs";
 import ActivityLogs from "./pages/ActivityLogs";
+import Expenses from "./pages/Expenses";
+import CashBook from "./pages/CashBook";
+import Estimates from "./pages/Estimates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +47,9 @@ const App = () => (
                 <Route path="/schemes" element={<Schemes />} />
                 <Route path="/repair-jobs" element={<RepairJobs />} />
                 <Route path="/activity-logs" element={<ActivityLogs />} />
+                <Route path="/expenses" element={<Expenses />} />
+                <Route path="/cash-book" element={<CashBook />} />
+                <Route path="/estimates" element={<Estimates />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

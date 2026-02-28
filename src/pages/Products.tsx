@@ -377,9 +377,11 @@ const Products = () => {
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>Weight: {product.weight_grams}g × {product.pieces || 1} pcs</span>
-                      <span>Stock: {product.stock_quantity || 0}</span>
+                    <span>Stock: {product.stock_quantity || 0}</span>
                       {product.unique_number && <span>#{product.unique_number}</span>}
                       {product.barcode && <span>Barcode: {product.barcode}</span>}
+                      {(product as any).huid_number && <Badge variant="outline" className="text-xs">HUID: {(product as any).huid_number}</Badge>}
+                      {(product as any).hallmark_status === 'hallmarked' && <Badge className="bg-green-600 text-xs">Hallmarked ✓</Badge>}
                     </div>
                   </div>
                 </div>

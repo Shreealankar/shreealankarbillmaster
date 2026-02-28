@@ -13,6 +13,7 @@ interface ProductTagProps {
     purity: string;
     barcode?: string;
     unique_number?: string;
+    huid_number?: string;
   };
   products?: Array<{
     title?: string;
@@ -22,6 +23,7 @@ interface ProductTagProps {
     purity: string;
     barcode?: string;
     unique_number?: string;
+    huid_number?: string;
   }>;
 }
 
@@ -67,6 +69,7 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
                 <span class="label">Purity:</span>
                 <span>${item.purity}</span>
               </div>
+              ${item.huid_number ? `<div class="info-row"><span class="label">HUID:</span><span>${item.huid_number}</span></div>` : ''}
             </div>
           </div>
           
@@ -197,6 +200,11 @@ export const ProductTag: React.FC<ProductTagProps> = ({ product, products }) => 
           <div>
             <span className="font-medium">Purity:</span> {product.purity}
           </div>
+          {product.huid_number && (
+            <div className="col-span-2">
+              <span className="font-medium">HUID:</span> {product.huid_number}
+            </div>
+          )}
         </div>
 
         <div className="border-t pt-3 mt-3">
