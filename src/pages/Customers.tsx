@@ -404,9 +404,9 @@ const Customers = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>GSTIN</TableHead>
+                    <TableHead>Birthday</TableHead>
+                    <TableHead>Anniversary</TableHead>
                     <TableHead>Address</TableHead>
-                    <TableHead>Added Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
