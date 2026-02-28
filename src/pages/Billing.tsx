@@ -863,6 +863,22 @@ export default function Billing() {
             </div>
 
             <div className="space-y-2">
+              <Label>GSTIN (Optional - B2B)</Label>
+              <Input
+                value={customer.gstin}
+                onChange={(e) => setCustomer({...customer, gstin: e.target.value.toUpperCase()})}
+                placeholder="e.g. 27AABCU9603R1ZM"
+                maxLength={15}
+              />
+              {customer.gstin && !validateGSTIN(customer.gstin) && (
+                <p className="text-xs text-destructive">Invalid GSTIN format</p>
+              )}
+              {customer.gstin && validateGSTIN(customer.gstin) && (
+                <p className="text-xs text-green-600">✓ Valid GSTIN - State: {customer.gstin.substring(0, 2)}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label>{t('customer.address')}</Label>
               <Textarea
                 value={customer.address}
