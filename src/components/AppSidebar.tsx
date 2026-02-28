@@ -14,6 +14,9 @@ import {
   DollarSign,
   Wrench,
   Activity,
+  Wallet,
+  BookOpen,
+  FileText,
 } from 'lucide-react';
 import {
   Sidebar,
