@@ -127,7 +127,7 @@ export default function Billing() {
 
   useEffect(() => {
     calculateTotals();
-  }, [billItems, billing.discount_percentage, billing.tax_percentage, billing.paid_amount]);
+  }, [billItems, billing.discount_percentage, billing.tax_percentage, billing.paid_amount, billing.is_igst]);
 
   const fetchCustomers = async () => {
     const { data } = await supabase
