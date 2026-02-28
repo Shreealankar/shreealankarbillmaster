@@ -196,6 +196,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCan
         barcode: product ? product.barcode : generatedCodes?.barcode,
         unique_number: product ? product.unique_number : generatedCodes?.uniqueNumber,
         image_url: imageUrl,
+        huid_number: huidNumber || null,
+        hallmark_status: hallmarkStatus,
+        hallmark_date: hallmarkDate || null,
+        hallmark_center: hallmarkCenter || null,
       };
 
       let result;
