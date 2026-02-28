@@ -11,6 +11,7 @@ interface BillPrintProps {
     customer_phone: string;
     customer_address: string;
     customer_email?: string;
+    customer_gstin?: string;
     created_at: string;
     total_weight: number;
     total_amount: number;
@@ -18,6 +19,10 @@ interface BillPrintProps {
     discount_amount: number;
     tax_percentage: number;
     tax_amount: number;
+    cgst_amount?: number;
+    sgst_amount?: number;
+    igst_amount?: number;
+    is_igst?: boolean;
     final_amount: number;
     paid_amount: number;
     balance_amount: number;
