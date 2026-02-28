@@ -589,7 +589,7 @@ export default function Billing() {
   };
 
   const resetForm = () => {
-    setCustomer({ name: '', phone: '', address: '', email: '' });
+    setCustomer({ name: '', phone: '', address: '', email: '', gstin: '' });
     setBillItems([]);
     setBilling({
       total_amount: 0,
@@ -597,6 +597,10 @@ export default function Billing() {
       discount_amount: 0,
       tax_percentage: 3,
       tax_amount: 0,
+      cgst_amount: 0,
+      sgst_amount: 0,
+      igst_amount: 0,
+      is_igst: false,
       final_amount: 0,
       paid_amount: 0,
       balance_amount: 0,
