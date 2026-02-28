@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, 
   Trash2, 
@@ -22,7 +23,8 @@ import {
   Trash,
   AlertTriangle,
   CalendarIcon,
-  Edit
+  Edit,
+  ShoppingBag
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -32,6 +34,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BillPrint } from "@/components/BillPrint";
 import { ProductScanner } from "@/components/ProductScanner";
+import { PurchaseVoucherPrint } from "@/components/PurchaseVoucherPrint";
 
 interface BillItem {
   id: string; // Frontend temporary ID or database UUID
