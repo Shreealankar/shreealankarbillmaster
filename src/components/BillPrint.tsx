@@ -323,10 +323,25 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
               )}
               
               {billData.tax_amount > 0 && (
-                <div className="flex justify-between text-sm print:text-xs">
-                  <span className="text-gray-700">Tax ({billData.tax_percentage}%):</span>
-                  <span className="font-medium">₹{billData.tax_amount.toLocaleString('en-IN')}</span>
-                </div>
+                <>
+                  {billData.is_igst ? (
+                    <div className="flex justify-between text-sm print:text-xs">
+                      <span className="text-gray-700">IGST ({billData.tax_percentage}%):</span>
+                      <span className="font-medium">₹{(billData.igst_amount || billData.tax_amount).toLocaleString('en-IN')}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between text-sm print:text-xs">
+                        <span className="text-gray-700">CGST ({((billData.tax_percentage || 3) / 2).toFixed(1)}%):</span>
+                        <span className="font-medium">₹{(billData.cgst_amount || billData.tax_amount / 2).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between text-sm print:text-xs">
+                        <span className="text-gray-700">SGST ({((billData.tax_percentage || 3) / 2).toFixed(1)}%):</span>
+                        <span className="font-medium">₹{(billData.sgst_amount || billData.tax_amount / 2).toLocaleString('en-IN')}</span>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
               
               <div className="border-t border-yellow-300 pt-2 print:border-gray-300 print:pt-1">
