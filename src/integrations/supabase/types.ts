@@ -54,6 +54,7 @@ export type Database = {
         Row: {
           bill_id: string | null
           created_at: string
+          hsn_code: string | null
           id: string
           item_name: string
           making_charges: number | null
@@ -70,6 +71,7 @@ export type Database = {
         Insert: {
           bill_id?: string | null
           created_at?: string
+          hsn_code?: string | null
           id?: string
           item_name: string
           making_charges?: number | null
@@ -86,6 +88,7 @@ export type Database = {
         Update: {
           bill_id?: string | null
           created_at?: string
+          hsn_code?: string | null
           id?: string
           item_name?: string
           making_charges?: number | null
@@ -113,8 +116,10 @@ export type Database = {
         Row: {
           balance_amount: number
           bill_number: string
+          cgst_amount: number | null
           created_at: string
           customer_address: string | null
+          customer_gstin: string | null
           customer_id: string | null
           customer_name: string
           customer_phone: string
@@ -122,9 +127,12 @@ export type Database = {
           discount_percentage: number | null
           final_amount: number
           id: string
+          igst_amount: number | null
+          is_igst: boolean | null
           notes: string | null
           paid_amount: number
           payment_method: string | null
+          sgst_amount: number | null
           tax_amount: number | null
           tax_percentage: number | null
           total_amount: number
@@ -134,8 +142,10 @@ export type Database = {
         Insert: {
           balance_amount?: number
           bill_number: string
+          cgst_amount?: number | null
           created_at?: string
           customer_address?: string | null
+          customer_gstin?: string | null
           customer_id?: string | null
           customer_name: string
           customer_phone: string
@@ -143,9 +153,12 @@ export type Database = {
           discount_percentage?: number | null
           final_amount?: number
           id?: string
+          igst_amount?: number | null
+          is_igst?: boolean | null
           notes?: string | null
           paid_amount?: number
           payment_method?: string | null
+          sgst_amount?: number | null
           tax_amount?: number | null
           tax_percentage?: number | null
           total_amount?: number
@@ -155,8 +168,10 @@ export type Database = {
         Update: {
           balance_amount?: number
           bill_number?: string
+          cgst_amount?: number | null
           created_at?: string
           customer_address?: string | null
+          customer_gstin?: string | null
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string
@@ -164,9 +179,12 @@ export type Database = {
           discount_percentage?: number | null
           final_amount?: number
           id?: string
+          igst_amount?: number | null
+          is_igst?: boolean | null
           notes?: string | null
           paid_amount?: number
           payment_method?: string | null
+          sgst_amount?: number | null
           tax_amount?: number | null
           tax_percentage?: number | null
           total_amount?: number
@@ -419,6 +437,7 @@ export type Database = {
           address: string | null
           created_at: string
           email: string | null
+          gstin: string | null
           id: string
           name: string
           phone: string
@@ -428,6 +447,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           email?: string | null
+          gstin?: string | null
           id?: string
           name: string
           phone: string
@@ -437,6 +457,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           email?: string | null
+          gstin?: string | null
           id?: string
           name?: string
           phone?: string
