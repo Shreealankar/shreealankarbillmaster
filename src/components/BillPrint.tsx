@@ -284,7 +284,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 ))}
                 {billItems.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 print:py-4">No items added</td>
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 print:py-4">No items added</td>
                   </tr>
                 )}
               </tbody>
