@@ -661,19 +661,137 @@ export default function Billing() {
     }
   };
 
+  // ========== Purchase Voucher State ==========
+  const [activeTab, setActiveTab] = useState<string>('sales');
+  const [pvCustomer, setPvCustomer] = useState({
+    name: '', phone: '', address: '', pan_aadhaar: ''
+  });
+  const [pvItems, setPvItems] = useState<Array<{
+    id: string; item_description: string; net_weight: number;
+    purity: string; rate_per_gram: number; total_amount: number; metal_type: string;
+  }>>([]);
+  const [pvNewItem, setPvNewItem] = useState({
+    item_description: '', net_weight: 0, purity: '22K', rate_per_gram: 0, metal_type: 'gold'
+  });
+  const [pvPayment, setPvPayment] = useState({ method: 'cash', utr_number: '', notes: '' });
+  const [pvDate, setPvDate] = useState<Date>(new Date());
+  const [pvLoading, setPvLoading] = useState(false);
+  const [showPvPrint, setShowPvPrint] = useState(false);
+  const [currentVoucher, setCurrentVoucher] = useState<any>(null);
+  const [currentVoucherItems, setCurrentVoucherItems] = useState<any[]>([]);
+
+  const pvTotalWeight = pvItems.reduce((s, i) => s + i.net_weight, 0);
+  const pvTotalAmount = pvItems.reduce((s, i) => s + i.total_amount, 0);
+
+  const addPvItem = () => {
+    if (!pvNewItem.item_description || !pvNewItem.net_weight || !pvNewItem.rate_per_gram) {
+      toast({ title: "Error", description: "कृपया सर्व आवश्यक फील्ड भरा", variant: "destructive" });
+      return;
+    }
+    const total = pvNewItem.net_weight * pvNewItem.rate_per_gram;
+    setPvItems([...pvItems, { ...pvNewItem, total_amount: total, id: `pv_${Date.now()}` }]);
+    setPvNewItem({ item_description: '', net_weight: 0, purity: '22K', rate_per_gram: 0, metal_type: 'gold' });
+  };
+
+  const removePvItem = (id: string) => setPvItems(pvItems.filter(i => i.id !== id));
+
+  const savePurchaseVoucher = async () => {
+    if (!pvCustomer.name || !pvCustomer.phone || pvItems.length === 0) {
+      toast({ title: "Error", description: "कृपया ग्राहकाचे नाव, फोन आणि किमान एक वस्तू जोडा", variant: "destructive" });
+      return;
+    }
+    setPvLoading(true);
+    try {
+      const voucherData = {
+        voucher_number: '',
+        customer_name: pvCustomer.name,
+        customer_phone: pvCustomer.phone,
+        customer_address: pvCustomer.address || null,
+        pan_aadhaar: pvCustomer.pan_aadhaar || null,
+        total_weight: pvTotalWeight,
+        total_amount: pvTotalAmount,
+        payment_method: pvPayment.method,
+        utr_number: pvPayment.method === 'bank' ? pvPayment.utr_number : null,
+        notes: pvPayment.notes || null,
+        voucher_date: pvDate.toISOString(),
+      };
+
+      const { data: savedVoucher, error: vErr } = await supabase
+        .from('purchase_vouchers')
+        .insert(voucherData)
+        .select()
+        .single();
+      if (vErr) throw vErr;
+
+      const itemsData = pvItems.map(({ id, ...rest }) => ({
+        voucher_id: savedVoucher.id,
+        item_description: rest.item_description,
+        net_weight: rest.net_weight,
+        purity: rest.purity,
+        rate_per_gram: rest.rate_per_gram,
+        total_amount: rest.total_amount,
+        metal_type: rest.metal_type,
+      }));
+      const { error: iErr } = await supabase.from('purchase_voucher_items').insert(itemsData);
+      if (iErr) throw iErr;
+
+      setCurrentVoucher(savedVoucher);
+      setCurrentVoucherItems(pvItems);
+      setShowPvPrint(true);
+      toast({ title: "पावती तयार!", description: `Voucher ${savedVoucher.voucher_number} saved` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setPvLoading(false);
+    }
+  };
+
+  const resetPvForm = () => {
+    setPvCustomer({ name: '', phone: '', address: '', pan_aadhaar: '' });
+    setPvItems([]);
+    setPvNewItem({ item_description: '', net_weight: 0, purity: '22K', rate_per_gram: 0, metal_type: 'gold' });
+    setPvPayment({ method: 'cash', utr_number: '', notes: '' });
+    setCurrentVoucher(null);
+  };
+
+  const autoFillPvRate = () => {
+    const currentRate = getCurrentRate(pvNewItem.metal_type);
+    if (currentRate > 0) {
+      setPvNewItem(prev => ({ ...prev, rate_per_gram: currentRate }));
+      toast({ title: "दर भरला", description: `₹${currentRate}/gram for ${pvNewItem.metal_type}` });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header with Bill Search */}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+            श्री अलंकार ज्वेलर्स
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            गावकऱ्यांसाठी सुलभ बिलिंग
+          </p>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="sales" className="flex items-center gap-2">
+            <Receipt className="h-4 w-4" />
+            Sales Bill (Tax Invoice)
+          </TabsTrigger>
+          <TabsTrigger value="purchase" className="flex items-center gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            खरेदी पावती (Purchase Voucher)
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="sales" className="space-y-6">
+      {/* Sales Bill - existing content */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-              श्री अलंकार ज्वेलर्स
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              गावकऱ्यांसाठी सुलभ बिलिंग
-            </p>
-          </div>
+        <div className="flex items-center justify-end">
           <div className="flex gap-2">
             <Button onClick={resetForm} variant="outline">
               <Plus className="h-4 w-4 mr-2" />
