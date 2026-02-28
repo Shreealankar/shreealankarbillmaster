@@ -16,6 +16,7 @@ interface Customer {
   phone: string;
   address: string;
   email: string;
+  gstin?: string;
   created_at: string;
 }
 
@@ -403,6 +404,7 @@ const Customers = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>GSTIN</TableHead>
                     <TableHead>Address</TableHead>
                     <TableHead>Added Date</TableHead>
                   </TableRow>
@@ -427,6 +429,13 @@ const Customers = () => {
                             <Mail className="h-4 w-4 text-muted-foreground" />
                             {customer.email}
                           </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {customer.gstin ? (
+                          <span className="font-mono text-xs">{customer.gstin}</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}

@@ -67,7 +67,8 @@ export default function Billing() {
     name: '',
     phone: '',
     address: '',
-    email: ''
+    email: '',
+    gstin: ''
   });
   
   const [searchBillNo, setSearchBillNo] = useState('');
@@ -96,12 +97,20 @@ export default function Billing() {
     discount_amount: 0,
     tax_percentage: 3,
     tax_amount: 0,
+    cgst_amount: 0,
+    sgst_amount: 0,
+    igst_amount: 0,
+    is_igst: false,
     final_amount: 0,
     paid_amount: 0,
     balance_amount: 0,
     payment_method: 'cash',
     notes: ''
   });
+
+  // Shop GSTIN - Maharashtra state code 27
+  const SHOP_GSTIN = '27XXXXX0000X1Z5'; // Replace with actual GSTIN
+  const SHOP_STATE_CODE = '27';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -118,7 +127,7 @@ export default function Billing() {
 
   useEffect(() => {
     calculateTotals();
-  }, [billItems, billing.discount_percentage, billing.tax_percentage, billing.paid_amount]);
+  }, [billItems, billing.discount_percentage, billing.tax_percentage, billing.paid_amount, billing.is_igst]);
 
   const fetchCustomers = async () => {
     const { data } = await supabase
@@ -156,7 +165,8 @@ export default function Billing() {
           name: data.customerName || '',
           phone: data.customerPhone || '',
           address: data.customerAddress || '',
-          email: data.email || ''
+          email: data.email || '',
+          gstin: ''
         });
         
         // Optionally prefill an item with the gold weight
@@ -264,6 +274,19 @@ export default function Billing() {
     const discount_amount = (total_amount * billing.discount_percentage) / 100;
     const taxable_amount = total_amount - discount_amount;
     const tax_amount = (taxable_amount * billing.tax_percentage) / 100;
+    
+    // GST breakup
+    let cgst_amount = 0;
+    let sgst_amount = 0;
+    let igst_amount = 0;
+    
+    if (billing.is_igst) {
+      igst_amount = tax_amount;
+    } else {
+      cgst_amount = tax_amount / 2;
+      sgst_amount = tax_amount / 2;
+    }
+    
     const final_amount = taxable_amount + tax_amount;
     const balance_amount = final_amount - billing.paid_amount;
 
@@ -272,9 +295,28 @@ export default function Billing() {
       total_amount,
       discount_amount,
       tax_amount,
+      cgst_amount,
+      sgst_amount,
+      igst_amount,
       final_amount,
       balance_amount
     }));
+  };
+
+  // Auto-detect IGST based on customer GSTIN state code
+  useEffect(() => {
+    if (customer.gstin && customer.gstin.length >= 2) {
+      const customerStateCode = customer.gstin.substring(0, 2);
+      const isInterState = customerStateCode !== SHOP_STATE_CODE;
+      setBilling(prev => ({ ...prev, is_igst: isInterState }));
+    }
+  }, [customer.gstin]);
+
+  // Validate GSTIN format
+  const validateGSTIN = (gstin: string): boolean => {
+    if (!gstin) return true; // Optional field
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    return gstinRegex.test(gstin.toUpperCase());
   };
 
   const generateSABillNumber = async () => {
@@ -331,6 +373,7 @@ export default function Billing() {
         customer_name: customer.name,
         customer_phone: customer.phone,
         customer_address: customer.address,
+        customer_gstin: customer.gstin || null,
         total_weight: billItems.reduce((sum, item) => sum + item.weight_grams, 0),
         created_at: billDate.toISOString(),
         ...billing
@@ -428,7 +471,8 @@ export default function Billing() {
           name: bill.customer_name,
           phone: bill.customer_phone,
           address: bill.customer_address || '',
-          email: bill.customers?.email || ''
+          email: bill.customers?.email || '',
+          gstin: (bill as any).customer_gstin || ''
         });
         setBillItems(bill.bill_items || []);
         setBilling({
@@ -437,6 +481,10 @@ export default function Billing() {
           discount_amount: bill.discount_amount || 0,
           tax_percentage: bill.tax_percentage || 3,
           tax_amount: bill.tax_amount || 0,
+          cgst_amount: (bill as any).cgst_amount || 0,
+          sgst_amount: (bill as any).sgst_amount || 0,
+          igst_amount: (bill as any).igst_amount || 0,
+          is_igst: (bill as any).is_igst || false,
           final_amount: bill.final_amount,
           paid_amount: bill.paid_amount,
           balance_amount: bill.balance_amount,
@@ -547,7 +595,7 @@ export default function Billing() {
   };
 
   const resetForm = () => {
-    setCustomer({ name: '', phone: '', address: '', email: '' });
+    setCustomer({ name: '', phone: '', address: '', email: '', gstin: '' });
     setBillItems([]);
     setBilling({
       total_amount: 0,
@@ -555,6 +603,10 @@ export default function Billing() {
       discount_amount: 0,
       tax_percentage: 3,
       tax_amount: 0,
+      cgst_amount: 0,
+      sgst_amount: 0,
+      igst_amount: 0,
+      is_igst: false,
       final_amount: 0,
       paid_amount: 0,
       balance_amount: 0,
@@ -565,12 +617,13 @@ export default function Billing() {
     setSearchBillNo('');
   };
 
-  const selectCustomer = (selectedCustomer: Customer) => {
+  const selectCustomer = (selectedCustomer: any) => {
     setCustomer({
       name: selectedCustomer.name,
       phone: selectedCustomer.phone,
       address: selectedCustomer.address || '',
-      email: selectedCustomer.email || ''
+      email: selectedCustomer.email || '',
+      gstin: selectedCustomer.gstin || ''
     });
   };
 
@@ -813,6 +866,22 @@ export default function Billing() {
                 placeholder="Enter gmail address"
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>GSTIN (Optional - B2B)</Label>
+              <Input
+                value={customer.gstin}
+                onChange={(e) => setCustomer({...customer, gstin: e.target.value.toUpperCase()})}
+                placeholder="e.g. 27AABCU9603R1ZM"
+                maxLength={15}
+              />
+              {customer.gstin && !validateGSTIN(customer.gstin) && (
+                <p className="text-xs text-destructive">Invalid GSTIN format</p>
+              )}
+              {customer.gstin && validateGSTIN(customer.gstin) && (
+                <p className="text-xs text-green-600">✓ Valid GSTIN - State: {customer.gstin.substring(0, 2)}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -1091,7 +1160,7 @@ export default function Billing() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Tax %</Label>
+                  <Label className="text-xs">GST % (Jewelry: 3%)</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -1102,11 +1171,55 @@ export default function Billing() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Amount</Label>
+                  <Label className="text-xs">Total GST</Label>
                   <div className="h-8 px-3 py-1 text-sm bg-muted rounded-md flex items-center">
                     ₹{billing.tax_amount.toLocaleString('en-IN')}
                   </div>
                 </div>
+              </div>
+
+              {/* GST Breakup */}
+              <div className="p-2 bg-muted/50 rounded-md space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium">GST Type:</span>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={!billing.is_igst ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-6 text-xs px-2"
+                      onClick={() => setBilling({...billing, is_igst: false})}
+                    >
+                      CGST+SGST
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={billing.is_igst ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-6 text-xs px-2"
+                      onClick={() => setBilling({...billing, is_igst: true})}
+                    >
+                      IGST
+                    </Button>
+                  </div>
+                </div>
+                {!billing.is_igst ? (
+                  <>
+                    <div className="flex justify-between text-xs">
+                      <span>CGST ({(billing.tax_percentage / 2).toFixed(1)}%):</span>
+                      <span>₹{billing.cgst_amount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span>SGST ({(billing.tax_percentage / 2).toFixed(1)}%):</span>
+                      <span>₹{billing.sgst_amount.toLocaleString('en-IN')}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-xs">
+                    <span>IGST ({billing.tax_percentage}%):</span>
+                    <span>₹{billing.igst_amount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
               </div>
 
               <Separator />

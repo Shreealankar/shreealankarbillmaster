@@ -11,6 +11,7 @@ interface BillPrintProps {
     customer_phone: string;
     customer_address: string;
     customer_email?: string;
+    customer_gstin?: string;
     created_at: string;
     total_weight: number;
     total_amount: number;
@@ -18,6 +19,10 @@ interface BillPrintProps {
     discount_amount: number;
     tax_percentage: number;
     tax_amount: number;
+    cgst_amount?: number;
+    sgst_amount?: number;
+    igst_amount?: number;
+    is_igst?: boolean;
     final_amount: number;
     paid_amount: number;
     balance_amount: number;
@@ -40,6 +45,47 @@ interface BillPrintProps {
 
 export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExistingBill = false }) => {
   const { t } = useLanguage();
+
+  const SHOP_GSTIN = '27XXXXX0000X1Z5'; // Replace with actual GSTIN
+
+  // Convert number to words (Indian system)
+  const numberToWords = (num: number): string => {
+    if (num === 0) return 'Zero';
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+      'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+    const convertLessThanThousand = (n: number): string => {
+      if (n === 0) return '';
+      if (n < 20) return ones[n];
+      if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '');
+      return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + convertLessThanThousand(n % 100) : '');
+    };
+
+    const integer = Math.floor(num);
+    const paise = Math.round((num - integer) * 100);
+    
+    let result = '';
+    if (integer >= 10000000) {
+      result += convertLessThanThousand(Math.floor(integer / 10000000)) + ' Crore ';
+      num = integer % 10000000;
+    } else { num = integer; }
+    if (num >= 100000) {
+      result += convertLessThanThousand(Math.floor(num / 100000)) + ' Lakh ';
+      num = num % 100000;
+    }
+    if (num >= 1000) {
+      result += convertLessThanThousand(Math.floor(num / 1000)) + ' Thousand ';
+      num = num % 1000;
+    }
+    result += convertLessThanThousand(num);
+    
+    result = 'Rupees ' + result.trim();
+    if (paise > 0) {
+      result += ' and ' + convertLessThanThousand(paise) + ' Paise';
+    }
+    return result + ' Only';
+  };
 
   const handlePrint = () => {
     window.print();
@@ -156,12 +202,14 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
           </div>
         </div>
 
-        {/* Bill Header */}
+        {/* Tax Invoice Header */}
         <div className="bg-gray-50 border-l-4 border-yellow-500 p-4 mb-6 print:bg-white print:border-gray-400 print:p-2 print:mb-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-gray-800 print:text-base">INVOICE</h2>
+              <h2 className="text-lg font-bold text-gray-800 print:text-base">TAX INVOICE</h2>
               <p className="text-sm text-gray-600 print:text-xs">{t('bill.number')}: <span className="font-mono font-semibold">{billData.bill_number}</span></p>
+              <p className="text-xs text-gray-500 print:text-xs">GSTIN: <span className="font-mono font-semibold">{SHOP_GSTIN}</span></p>
+              <p className="text-xs text-gray-500 print:text-xs">State: Maharashtra | Code: 27</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600 print:text-xs">{t('date')}: {format(new Date(billData.created_at), 'dd/MM/yyyy')}</p>
@@ -193,6 +241,12 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">Email:</span>
                 <span className="text-sm text-gray-900 print:text-xs">{billData.customer_email || 'N/A'}</span>
               </div>
+              {billData.customer_gstin && (
+                <div className="flex">
+                  <span className="text-sm font-medium text-gray-700 w-16 print:text-xs">GSTIN:</span>
+                  <span className="text-sm text-gray-900 font-mono print:text-xs">{billData.customer_gstin}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -205,6 +259,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">#</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Item Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">HSN</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Type/Purity</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Weight (g)</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold print:px-2 print:py-1 print:text-xs">Rate/g</th>
@@ -218,6 +273,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                   <tr key={index} className="hover:bg-gray-50 print:hover:bg-white">
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{index + 1}</td>
                     <td className="px-4 py-3 text-sm font-medium print:px-2 print:py-1 print:text-xs">{item.item_name}</td>
+                    <td className="px-4 py-3 text-sm font-mono print:px-2 print:py-1 print:text-xs">{(item as any).hsn_code || '7113'}</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{t(item.metal_type.toLowerCase())}/{item.purity}</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">{item.weight_grams}g</td>
                     <td className="px-4 py-3 text-sm print:px-2 print:py-1 print:text-xs">₹{item.rate_per_gram.toLocaleString('en-IN')}</td>
@@ -228,7 +284,7 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                 ))}
                 {billItems.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500 print:py-4">No items added</td>
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500 print:py-4">No items added</td>
                   </tr>
                 )}
               </tbody>
@@ -267,10 +323,25 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
               )}
               
               {billData.tax_amount > 0 && (
-                <div className="flex justify-between text-sm print:text-xs">
-                  <span className="text-gray-700">Tax ({billData.tax_percentage}%):</span>
-                  <span className="font-medium">₹{billData.tax_amount.toLocaleString('en-IN')}</span>
-                </div>
+                <>
+                  {billData.is_igst ? (
+                    <div className="flex justify-between text-sm print:text-xs">
+                      <span className="text-gray-700">IGST ({billData.tax_percentage}%):</span>
+                      <span className="font-medium">₹{(billData.igst_amount || billData.tax_amount).toLocaleString('en-IN')}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between text-sm print:text-xs">
+                        <span className="text-gray-700">CGST ({((billData.tax_percentage || 3) / 2).toFixed(1)}%):</span>
+                        <span className="font-medium">₹{(billData.cgst_amount || billData.tax_amount / 2).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between text-sm print:text-xs">
+                        <span className="text-gray-700">SGST ({((billData.tax_percentage || 3) / 2).toFixed(1)}%):</span>
+                        <span className="font-medium">₹{(billData.sgst_amount || billData.tax_amount / 2).toLocaleString('en-IN')}</span>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
               
               <div className="border-t border-yellow-300 pt-2 print:border-gray-300 print:pt-1">
@@ -293,6 +364,14 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
                     : `-₹${Math.abs(billData.balance_amount).toLocaleString('en-IN')}`
                   }
                 </span>
+              </div>
+
+              {/* Amount in Words */}
+              <div className="border-t border-yellow-300 pt-2 print:border-gray-300 print:pt-1">
+                <p className="text-xs text-gray-600 print:text-xs italic">
+                  <span className="font-medium">Amount in Words: </span>
+                  {numberToWords(billData.final_amount)}
+                </p>
               </div>
             </div>
           </div>
