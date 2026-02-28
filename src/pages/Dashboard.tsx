@@ -34,7 +34,9 @@ export default function Dashboard() {
     yearlyTurnover: 0,
     totalCustomers: 0,
     pendingBorrowings: 0,
-    recentBills: []
+    recentBills: [],
+    dailyPurchases: 0,
+    monthlyPurchases: 0,
   });
   const [loading, setLoading] = useState(true);
 
