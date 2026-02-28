@@ -202,12 +202,14 @@ export const BillPrint: React.FC<BillPrintProps> = ({ billData, billItems, isExi
           </div>
         </div>
 
-        {/* Bill Header */}
+        {/* Tax Invoice Header */}
         <div className="bg-gray-50 border-l-4 border-yellow-500 p-4 mb-6 print:bg-white print:border-gray-400 print:p-2 print:mb-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-gray-800 print:text-base">INVOICE</h2>
+              <h2 className="text-lg font-bold text-gray-800 print:text-base">TAX INVOICE</h2>
               <p className="text-sm text-gray-600 print:text-xs">{t('bill.number')}: <span className="font-mono font-semibold">{billData.bill_number}</span></p>
+              <p className="text-xs text-gray-500 print:text-xs">GSTIN: <span className="font-mono font-semibold">{SHOP_GSTIN}</span></p>
+              <p className="text-xs text-gray-500 print:text-xs">State: Maharashtra | Code: 27</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600 print:text-xs">{t('date')}: {format(new Date(billData.created_at), 'dd/MM/yyyy')}</p>
