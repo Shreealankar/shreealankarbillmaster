@@ -67,7 +67,8 @@ export default function Billing() {
     name: '',
     phone: '',
     address: '',
-    email: ''
+    email: '',
+    gstin: ''
   });
   
   const [searchBillNo, setSearchBillNo] = useState('');
