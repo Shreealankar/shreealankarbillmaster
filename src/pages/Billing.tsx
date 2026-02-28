@@ -471,7 +471,8 @@ export default function Billing() {
           name: bill.customer_name,
           phone: bill.customer_phone,
           address: bill.customer_address || '',
-          email: bill.customers?.email || ''
+          email: bill.customers?.email || '',
+          gstin: (bill as any).customer_gstin || ''
         });
         setBillItems(bill.bill_items || []);
         setBilling({
@@ -480,6 +481,10 @@ export default function Billing() {
           discount_amount: bill.discount_amount || 0,
           tax_percentage: bill.tax_percentage || 3,
           tax_amount: bill.tax_amount || 0,
+          cgst_amount: (bill as any).cgst_amount || 0,
+          sgst_amount: (bill as any).sgst_amount || 0,
+          igst_amount: (bill as any).igst_amount || 0,
+          is_igst: (bill as any).is_igst || false,
           final_amount: bill.final_amount,
           paid_amount: bill.paid_amount,
           balance_amount: bill.balance_amount,
